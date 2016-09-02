@@ -1,0 +1,323 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>CloudBees Jenkins Platform</title><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui" name="viewport"><link href="reveal.js/css/reveal.css" rel="stylesheet"><link rel="stylesheet" href="./build/build.css" id="theme"><link href="reveal.js/lib/css/zenburn.css" rel="stylesheet"><script>document.write( '<link rel="stylesheet" href="reveal.js/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );</script></head><body><div class="reveal"><div class="slides"><section><h1>CloudBees Jenkins Platform</h1><div class="paragraph"><p>Pipeline with Docker (Day 2)</p></div><p><small></small></p></section>
+<section><section id="docker_introduction_day_2"><h2>Docker Introduction (Day 2)</h2><aside class="notes"><div class="paragraph"><p>Today we&#8217;ll take a brake from the CloudBees Pipeline plugin and explore Docker and the tools around it.</p></div></aside></section><section id="review_of_day_1_concepts_and_exercise"><h2>Review Of Day 1 Concepts And Exercise</h2><div class="ulist"><ul><li><p>CD flow</p></li><li><p>Older solutions</p></li><li><p>Build Flow plugin</p></li><li><p>CloudBees Pipeline Plugin</p></li><li><p>Create Pipeline jobs &amp; use the Snippet Generator</p></li><li><p>Exercise</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p><strong>CD flow:</strong></p></div>
+<div class="paragraph"><p>We briefly explored the goals of a CD flow as a definition of the whole process, starting from SCM commit, through building and testing, all the way until deployment.</p></div>
+<div class="paragraph"><p><strong>Older solutions:</strong></p></div>
+<div class="paragraph"><p>We continued discussing some of the older Jenkins solutions to this challenge and concluded that a real-world CD flow is way more complex than what those plugins can offer. The flow often requires complex and conditional logic, allocation and cleanup of resources, can involve human interaction, should be resumable in case of a failure, and so on. We also discussed the need to a balanced combination of code and visualisation of the flow.</p></div>
+<div class="paragraph"><p><strong>Build Flow plugin:</strong></p></div>
+<div class="paragraph"><p>We could not begin the discussion of the CloudBees Pipeline plugin without mentioning the Build Flow plugin. It is, in a way, the predecessor of the CloudBees Pipeline plugin and uses similar concepts (Groovy, DSL, and so on). Even though it got wide adoption, it was considered only a proof of concept.</p></div>
+<div class="paragraph"><p><strong>CloudBees Pipeline Plugin:</strong></p></div>
+<div class="paragraph"><p>CloudBees Pipeline plugin is an evolution of the CD concepts inside Jenkins and a response to ever changing needs of the industry. We went briefly through its major advantages and reasons behind its existence.</p></div>
+<div class="paragraph"><p><strong>Create Pipeline jobs:</strong></p></div>
+<div class="paragraph"><p>We saw, briefly, how to create a new Pipeline job by implementing a simple echo running inside a slave with the cd label. The intention behind the example was only to give you a taste of what we&#8217;ll explore in more details through the rest of the training.</p></div>
+<div class="paragraph"><p><strong>Use the Snippet Generator:</strong></p></div>
+<div class="paragraph"><p>We used the Snippet Generator to help us create snippets of the Pipeline steps. It is a convenient way to explore the Pipeline DSL without having to memorise the syntax.</p></div>
+<div class="paragraph"><p><strong>Exercise:</strong></p></div>
+<div class="paragraph"><p><em>TEACHER DISPLAYS AND COMMENTS ON A FEW OF THE RESULTS PARTICIPANTS SENT</em></p></div></aside></section><section id="in_this_unit_you_will_learn"><h2>In This Unit: You Will Learn</h2><div class="ulist"><ul><li><p>How to prepare the environments</p></li><li><p>Docker containers</p></li><li><p>Docker use cases</p></li><li><p>Docker tools</p></li></ul></div></section><section id="in_this_unit_you_will_be_able_to"><h2>In This Unit: You Will Be Able To</h2><div class="ulist"><ul><li><p>Prepare the CD flow environments</p></li><li><p>Understand Docker containers and use cases</p></li><li><p>Have A Working Knowledge Of Docker Tools</p></li></ul></div></section><section id="docker_containers"><h2>Docker Containers</h2><div class="ulist"><ul><li><p>Self-sufficient</p></li><li><p>Isolated</p></li><li><p>Immutable</p></li><li><p>Reliable</p></li><li><p>Scalable</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p><strong>Self-sufficient:</strong></p></div>
+<div class="paragraph"><p>Traditional deployments would put an artifact into an existing node expecting that everything else is in place; the application server, configuration files, dependencies, and so on. Containers, on the other hand, contain everything our software needs. Each container should be self-sufficient. It should contain everything an application needs. That includes, but is not limited to, run-time dependencies, built artefacts (JARs, WARs, DLLs), application server, and so on.</p></div>
+<div class="paragraph"><p><strong>Isolated:</strong></p></div>
+<div class="paragraph"><p>Each container runs in an isolated process thus making it more fault-tollerant, easier to deploy and more secure.</p></div>
+<div class="paragraph"><p><strong>Immutable:</strong></p></div>
+<div class="paragraph"><p>Containers consist of a number of unchangeable images making them immutable thus avoiding differences that might between different environments. Applications packed inside containers behave exactly the same no matter whether they are deployed to developer laptop, staging server, or production.</p></div>
+<div class="paragraph"><p><strong>Reliable:</strong></p></div>
+<div class="paragraph"><p>When isolation, self-sufficiency, and immutability are combined, the result is higher reliability.</p></div>
+<div class="paragraph"><p><strong>Scalable:</strong></p></div>
+<div class="paragraph"><p>Since each container is immutable, scaling an application is much easier than when other packaging and deployment methods are used.</p></div></aside></section><section id="vms_vs_docker_containers"><h2>VMs vs Docker Containers</h2><div class="imageblock" style=""><div class="content"><img src="./images/vm-vs-docker.png" alt="vm vs docker" width="800"></div></div>
+<aside class="notes"><div class="paragraph"><p>A physical server running, for example, five virtual machines would have five operating systems in addition to a hypervisor that is more resource demanding than lxc. Five containers, on the other hand, share the operating system of the physical server and, where appropriate, binaries and libraries. As a result, containers are much more lightweight then VMs. That is not such a big difference with monolithic applications especially in cases when a single one would occupy the whole server. With microservices, this gain in resource utilization is very important considering that we might have tens or hundreds of them on a single physical server. Put in other words, a single physical server can host more containers than virtual machines.</p></div></aside></section><section id="single_container_service"><h2>Single-Container Service</h2><div class="imageblock" style=""><div class="content"><img src="./images/container-single-service.png" alt="container single service" width="500"></div></div>
+<aside class="notes"><div class="paragraph"><p>Containers are self-sufficient bundles that contain everything we need (with the exception of the kernel), run in an isolated process and are immutable. Being self-sufficient means that a container commonly has the following components.</p></div>
+<div class="ulist"><ul><li><p>Runtime libraries (JDK, Python, or any other library required for the application to run)</p></li><li><p>Application server (Tomcat, nginx, and so on)</p></li><li><p>Database (preferably lightweight)</p></li><li><p>Artifacts (JAR, WAR, static files, and so on)</p></li></ul></div></aside></section><section id="linked_or_networked_containers"><h2>Linked or Networked Containers</h2><div class="imageblock" style=""><div class="content"><img src="./images/container-links.png" alt="container links" width="700"></div></div>
+<aside class="notes"><div class="paragraph"><p>Fully self-sufficient containers are the easiest way to deploy services but pose a few problems with scaling. If we&#8217;d like to scale such a container on multiple nodes in a cluster, we&#8217;d need to make sure that databases embedded into those containers are synchronized or that their data volumes are located on a shared drive. The first option often introduces unnecessary complexity while shared volumes might have a negative impact on performance. Alternative is to make containers almost self-sufficient by externalizing database into a separate container. In such a setting there would be two different containers per each service. One for the application and the other for the database. They would be linked (preferably through a proxy service). While such a combination slightly increases deployment complexity, it provides greater freedom when scaling. We can deploy multiple instances of the application container or several instances of the database depending performance testing results or increase in traffic. Finally, nothing prevents us to scale both if such a need arises.</p></div></aside></section><section id="docker_use_cases"><h2>Docker Use Cases</h2><div class="ulist"><ul><li><p>Local Development And Testing</p></li><li><p>Continuous Integration, Delivery, Or Deployment</p></li><li><p>Reliable And Repeatable Deployments</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p><strong>Local development and testing:</strong></p></div>
+<div class="paragraph"><p>Due to containers self-sufficiency and immutability, setting up local environment poses no effort, and the result is exactly the same no matter whether they are run on laptops or servers. Running a full application requires a single command through Docker CLI. A whole system can be defined in a single Docker Compose configuration reducing deployment of any number of services a breeze.</p></div>
+<div class="paragraph"><p><strong>Continuous integration, delivery, or deployment:</strong></p></div>
+<div class="paragraph"><p>Since there is no need to provision environments (except Docker engine itself), CI/CD is much simplified especially setting up nodes where testing and building will be performed. Moreover, containers can be removed after they run so that no trace of them is left of the server. We can, for example, run a container with tests and remove it at the end. That would be equivalent to creating a new slave VM for each tests run and removing it at the end thus freeing resources for other tasks. The major difference is that running containers is much faster than creating and initialising VMs.</p></div>
+<div class="paragraph"><p><strong>Reliable and repeatable deployments:</strong></p></div>
+<div class="paragraph"><p>Having a guarantee that a container will behave in the same way no matter the environment, deployments are more reliable since we know that the application tested in, for example, staging environment, will behave the same when deployed to production. We can use containers to deploy applications from development, through staging, all the way until production environments.</p></div></aside></section><section id="reality_check"><h2>Reality Check</h2><div class="ulist"><ul><li><p>Questions About Containers?</p></li><li><p>Examples Of Scalability In Your Current Use Of Containers?</p></li><li><p>How Is CI Valuable In Your Environments?</p></li><li><p>Are You Using Containers In Deployment Now?</p></li></ul></div></section><section id="docker_tools"><h2>Docker Tools</h2><div class="ulist"><ul><li><p>Docker Hub/Registry</p></li><li><p>Docker Engine</p></li><li><p>Docker Compose</p></li><li><p>Docker Swarm</p></li><li><p>Docker Machine</p></li><li><p>Kitematic</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p>A very big ecosystem has been created around Docker. New operating systems specialised in running containers have emerged. Two examples would be CoreOS and Rancher. We got both commercial and open source solutions to store containers, different toolkits to define containers, clustering and monitoring tools, software defined networking solutions, network storage, and so on. Today we&#8217;ll focus on tools developed by Docker itself, namely, Docker Hub and Registry, Engine, Compose, Swarm, Machine and Kitematic.</p></div></aside></section><section id="docker_hub_and_registry"><h2>Docker Hub and Registry</h2><div class="imageblock right top" style=""><div class="content"><img src="./images/docker-hub.png" alt="docker hub" width="150"></div></div>
+<div class="ulist"><ul><li><p><strong>Docker Hub</strong>: Cloud hosted service that provides registry capabilities for public and private content.</p></li><li><p><strong>Docker Registry</strong>: An open source application dedicated to the storage and distribution of your Docker images.</p></li><li><p><strong>Docker Trusted Registry</strong>: Allows storing and managing Docker images on-premise. It supports security or regulatory compliance requirements.</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p><strong>Docker Hub:</strong></p></div>
+<div class="paragraph"><p>Docker Hub is a cloud hosted service from Docker that provides registry capabilities for public and private content. We can push our containers to it and pull it on any server that has the access to internet. Moreover, it is a very useful tool to find already pre-made containers. If you need MongoDB, NodeJS server, ElasticSearch, or almost any other remotely popular tool or application, chances are that you&#8217;ll find at least one version in Docker Hub. For example, both Jenkins OS and CloudBees Jenkins Enterprise edition container are available in Docker. We can run them with a single docker run command. As you&#8217;ll see, we&#8217;ll use an example service prepared exclusively for this training and freely available in Docker Hub. Please note that Docker Hub allows both public and private accounts.</p></div>
+<div class="paragraph"><p><strong>Docker Registry:</strong></p></div>
+<div class="paragraph"><p>Docker Registry is an open source application dedicated to the storage and distribution of your Docker images. Many companies do not want to store their containers in Docker Hub, and prefer using Docker Registry as an alternative. Functionally, it is very similar to Docker Hub. The major difference is that it can be hosted on-premise or in your private cloud. Bear in mind that, unlike Docker Hub, it does not have a UI and needs to be operated completely through its CLI.</p></div>
+<div class="paragraph"><p><strong>Docker Trusted Registry:</strong></p></div>
+<div class="paragraph"><p>Docker Trusted Registry allows you to store and manage your Docker images on-premise or in your virtual private cloud to support security or regulatory compliance requirements in keeping data and applications your infrastructure. The solution is based on Docker Registry with additional features mostly related to security. It also features and UI that can be used to operate and monitor containers.</p></div>
+<div class="paragraph"><p>Shell we give it a try and see Docker Hub and Docker Registry in action?</p></div></aside></section><section id="docker_hub_and_registry_pulling_and_pushing_containers"><h2>Docker Hub and Registry: Pulling and Pushing Containers</h2><div class="paragraph"><p>Please use the SSH client to connect to the server you were assigned.</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">docker pull cloudbees/training-books-ms-tests
+
+docker tag cloudbees/training-books-ms-tests \
+    localhost:5000/training-books-ms-tests
+
+docker push localhost:5000/training-books-ms-tests</code></pre></div></div>
+<aside class="notes"><div class="paragraph"><p>We&#8217;ll start by entering into the VM we prepared for this training. Please use the SSH client to connect to the server you were assigned.</p></div>
+<div class="paragraph"><p>Pull the container from Docker Hub:</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">docker pull cloudbees/training-books-ms-tests</code></pre></div></div>
+<div class="paragraph"><p>Next, we&#8217;ll pull a sample service from Docker Hub. The container was pushed to the public account and is freely available for pulling without any credentials. In order to save some time and not risk with slow internet connection, the image we are about to pull has already been preloaded inside the VM. As a result, you&#8217;ll see Status: Image is up to date for cloudbees/training-books-ms-tests message. This shows another great Docker feature. Each container consists of multiple images. When you pull a container, only those images that have been modified will be downloaded thus saving time.</p></div>
+<div class="paragraph"><p>Tag the container for private registry:</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">docker tag -f cloudbees/training-books-ms-tests \
+    localhost:5000/training-books-ms-tests</code></pre></div></div>
+<div class="paragraph"><p>Now that we have the container pulled into the VM, we can see the other solution for storing and retrieving containers. We&#8217;ll push the image we pulled form Docker Hub into Registry running locally. Actually, we do not have any other option since I am not willing to share my Docker Hub credentials. Without them, you would not be able to push a new version to Docker Hub. Pushing to the private registry relies on the naming convention. If the name of the container is prefixed with the IP and the port of the private registry, when docker push is run, Docker Engine will send it to the specified address. In other words, pushing cloudbees/training-books-ms-tests would result in that container stored in Docker Hub. On the other hand, if we change the name of the container to localhost:5000/training-books-ms-tests, Docker Engine will store it in our private registry located in the specified IP and port. To accomplish this, we can use the tag command specifying the source container name followed by the new tag.</p></div>
+<div class="paragraph"><p>Push the container to private registry:</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">docker push localhost:5000/training-books-ms-tests</code></pre></div></div>
+<div class="paragraph"><p>Now that we have our container properly tagged with our registry IP and port, we can push it. You&#8217;ll notice that Docker Engine listed quite a few images that form this container. The status of each of them is Image already exists. Again, we tried to save some time so pushing to the registry was part of the pre-load script we run as part of the preparation for this training. This was an useful demonstration that Docker Engine monitors each image separately and pushes only those that changed.</p></div>
+<div class="paragraph"><p>The container can now be pulled from any server</p></div>
+<div class="paragraph"><p>We mentioned Docker Engine a couple of times and used few of its commands in conjunction with Docker Hub and Private Registry for pulling, tagging, and pushing. Let&#8217;s discuss it in more detail.</p></div></aside></section><section id="docker_engine"><h2>Docker Engine</h2><div class="imageblock right top" style=""><div class="content"><img src="./images/docker-engine.png" alt="docker engine" width="250"></div></div>
+<div class="ulist"><ul><li><p><strong>Docker Engine</strong> is a lightweight runtime and robust tooling that builds and runs Docker containers.</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p>Docker Engine is a lightweight runtime and robust tooling that builds and runs Docker containers. Even though this was the official definition, Docker Engine does much more than that. It can run, pull, and push containers, create software defined network, manage volumes located on the host or network drives, and so on. Going through all the commands would require a much more time than what we have, so we&#8217;ll focus on a few most common examples and the syntax behind them. Please note that tomorrow we&#8217;ll combine Docker with Jenkins Pipeline. That will give us opportunity to explore both in more depth. Today, we&#8217;ll focus on Docker alone.</p></div></aside></section><section id="docker_engine_running_tests_inside_containers"><h2>Docker Engine: Running Tests Inside Containers</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">cd /mnt/training-books-ms
+
+docker run -it --rm \
+    -v $PWD/client/components:/source/client/components \
+    -v $PWD/client/test:/source/client/test \
+    -v $PWD/src:/source/src \
+    -v $PWD/target/scala-2.10:/source/target/scala-2.10 \
+    --env TEST_TYPE=all \
+    localhost:5000/training-books-ms-tests
+
+ll target/scala-2.10/
+
+docker ps -a | grep books</code></pre></div></div>
+<aside class="notes"><div class="paragraph"><p>Running Tests Inside Containers</p></div>
+<div class="paragraph"><p>Enter the source code directory:</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">cd ~/training-books-ms</code></pre></div></div>
+<div class="paragraph"><p>Let&#8217;s enter the training-books-ms directory. It contains the source code of the container we already pulled from Docker Hub.</p></div>
+<div class="paragraph"><p>Run tests and build a JAR:</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">docker run -it --rm \
+    -v $PWD/client/components:/source/client/components \
+    -v $PWD/client/test:/source/client/test \
+    -v $PWD/src:/source/src \
+    -v $PWD/target/scala-2.10:/source/target/scala-2.10 \
+    --env TEST_TYPE=all \
+    localhost:5000/training-books-ms-tests</code></pre></div></div>
+<div class="paragraph"><p>We are (or strive to become) experienced programmers. Important part of developing a service or an application are tests. Besides, it is hardly possible to create a continuous delivery pipeline without tests. Let me give you a short background of this service. It is a micro service containing both front-end and back-end. The service is part of a bigger system dedicated to selling stuff online. This particular micro service is in charge of retrieving and administrating books. Its goal is to provide web components that can be embedded into a Web site as well as back-end API that those components or a third party can invoke. Back-end is written with Scala with Spray and the front-end web components with Polymer JS library. On top of all that, it stores data in a MongoDB. Front-end tests should run in Chrome and Firefox, while back-end tests need a fresh instance of MongoDB. The complete list of everything needed for this service to be properly tested is as follows. MongoDB, NodeJS, Git, SBT, FireFox, Chrome, Scala, Gulp, Bower&#8230;&#8203; Since my memory does not serve me that well any more, there might be few more things I forgot. How much time do you think we would need to setup all those frameworks and tools on a new environment (probably Jenkins slave)? If that environment would be used for other things as well, how much headache we would have due to conflicts with the tools required by other services? Docker solves this, and many other things, by packaging everything in a container isolated from the rest of the environment. The server we are using, has only Docker and JDK installed (later is required for Jenkins slaves). You will find none of the tools we mentioned. Everything is inside the container we pulled. Let&#8217;s recap the goal of the command we are about to run. It should:</p></div>
+<div class="olist arabic"><ol class="arabic"><li><p>Run Mongo DB</p></li><li><p>Run Back-end tests</p></li><li><p>Shut down Mongo DB</p></li><li><p>Run front-end tests using FireFox (optionally it can use Chrome as well since it is already inside the container)</p></li><li><p>Compile the code</p></li></ol></div>
+<div class="paragraph"><p>Please execute the command you see on the screen and we&#8217;ll discuss the arguments while it is running. <em>MAKE SURE TO COMMENT WHAT IS HAPPENING ON THE SCREEN</em></p></div>
+<div class="paragraph"><p>-it: Makes the container interactive with a terminal.
+--rm: Removes the container when the process running inside it is finished. In other words, once the command is finished, there will be no trace of the container we run and resources will be freed for other tasks.
+-v: Mounts a volume between the host and the container. In this case, we&#8217;re using it to mount the source code directories inside the container and, at the same time, to have the resulting JAR available.
+--env: Sets environment variables. In this case, we&#8217;re using it to tell the code what type of tests to run.</p></div>
+<div class="paragraph"><p>List directory contents:</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">ll target/scala-2.10/</code></pre></div></div>
+<div class="paragraph"><p>Let&#8217;s take a look whether the JAR was indeed created. If everything went as expected, we should have it inside the target/scala-2.10 directory. <em>RUN THE COMMAND</em>. Indeed, the books-ms-assembly-1.0.jar is there. All our tests run successfully and the JAR has been created.</p></div>
+<div class="paragraph"><p>List Docker processes:</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">docker ps -a | grep books</code></pre></div></div>
+<div class="paragraph"><p>Let&#8217;s list all Docker processes and see what happened with the training-books-ms-tests container. and demonstrate that the container is completely gone as if it never existed. <em>RUN THE COMMAND</em>. As you can see, there is no trace of the container we run.</p></div>
+<div class="paragraph"><p>The container is gone, code has been tested, and the JAR was built</p></div>
+<div class="paragraph"><p>You will probably agree with me that the docker run command was too long. It would be close to impossible to remember all those arguments. How can we fix that? We could, for example, create a Shell script run_tests.sh. While that is a viable solution, there is a better one. We can use Docker Compose. However, I&#8217;m jumping in front of myself. Let us first explore a few more Docker commands.</p></div></aside></section><section id="docker_engine_building_containers_and_pushing_them_to_the_private_registry"><h2>Docker Engine: Building Containers and Pushing Them to the Private Registry</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">cat Dockerfile
+
+docker build -t localhost:5000/training-books-ms .
+
+docker push localhost:5000/training-books-ms</code></pre></div></div>
+<aside class="notes"><div class="paragraph"><p>Building Containers and Pushing Them to the Private Registry</p></div>
+<div class="paragraph"><p>Inspect Dockerfile:</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">cat Dockerfile</code></pre></div></div>
+<div class="paragraph"><p>Let&#8217;s take a look at Dockerfile. It contains the full definition Docker requires to build the container. Let&#8217;s take a look at it. [EXECUTE THE COMMAND]</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code>FROM debian:jessie</code></pre></div></div>
+<div class="paragraph"><p>FROM: Tells Docker what to use as a base image (in this case Debian). Explain that it is not a full Debian distribution but the absolute minimum for the rest of the instructions to run (for example apt-get). Docker uses host kernel so there is no need for the full Linux OS inside a container.</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code>MAINTAINER Viktor Farcic "viktor@farcic.com"</code></pre></div></div>
+<div class="paragraph"><p>MAINTAINER is for informational purposes only.</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code>RUN apt-get update &amp;&amp; \
+    apt-get install -y --force-yes --no-install-recommends openjdk-7-jdk &amp;&amp; \
+    apt-get clean &amp;&amp; \
+    rm -rf /var/lib/apt/lists/*</code></pre></div></div>
+<div class="paragraph"><p>RUN executes a command in the same way we&#8217;d run it through shell. In this case, it updates the system, installs JDK7, and, finally, performs some cleanup. Please note that multiple commands were specified. While we could have split it into several RUNs, using this syntax keeps the container small. Since each instruction is converted into a separate immutable image, if we did use multiple RUNs, deleting files with rm would have no effect of the container size. The apt-get update would generate an image and rm would create another.</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code>ENV DB_DBNAME books
+ENV DB_COLLECTION books
+ENV DB_HOST localhost</code></pre></div></div>
+<div class="paragraph"><p>ENV sets environment variables. In this case, we are creating several that will be used by the service. Those are default values that can be changed at runtime. Please note that environment variables are a preferred way to pass some custom values to a container. Alternative would be to expose a directory inside the container and inject parameter files. This alternative would jeopardise immutability and complicate deployments.</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code>COPY run.sh /run.sh</code></pre></div></div>
+<div class="paragraph"><p>The COPY command copies a file or a directory from the host to the container image.  In this case, we are copying the script from the source code to the container, and changing its permissions.</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code>RUN chmod +x /run.sh</code></pre></div></div>
+<div class="paragraph"><p>The RUN command runs any shell script or commands.</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code>COPY target/scala-2.10/books-ms-assembly-1.0.jar /bs.jar
+COPY client/components /client/components</code></pre></div></div>
+<div class="paragraph"><p>We need a few more files. Namely, the JAR that we build as part of the testing process and some front-end static files. This might be a good moment to speak about the order of instructions inside Dockerfile. As a rule of thumb, you want to put those that are less likely to change at the top. In this case, installation of packages is highly unlikely to change, the environment variables and the run.sh script somewhat unlikely, while the JAR file and the static files are very likely to change on each build. The reason behind this order lies in the way Docker builds containers. It will start from the first instruction and go down, one by one, building images. If it finds the image corresponding to an instruction in its cache, that image will be reused. However, the first time it decides that a new image should be built, it will continue creating new ones from that instruction all the way until the end of Dockerfile.</p></div>
+<div class="paragraph"><p>We&#8217;re almost done. Two more instructions are left.</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code>CMD ["/run.sh"]</code></pre></div></div>
+<div class="paragraph"><p>CMD represents a command that will be run when container is started. This can be overwritten at run time</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code>EXPOSE 8080</code></pre></div></div>
+<div class="paragraph"><p>EXPOSE defines ports that will be exposed. Please note that each container is like a host in itself. If, for example, you run a service inside a container and that service listens on port 8080, that port is opened only internally inside the container. Unless specified through EXPOSE, the host container is running on will not know about that port. The EXPOSE instruction tells Docker what are the ports that should be exposed to the host. As you&#8217;ll see later, we have the option to defined to which port it will map to or let Docker decide. This combination of mapping between internal and external ports allows us not to worry that there will be conflicts (after all, there can be no two processes listening on the same port). You&#8217;ll see ports exposure in action very soon.</p></div>
+<div class="paragraph"><p>Please note that the Dockerfile instructions we explored are, by no means, all available. We won&#8217;t have time to go through all of them during this training. I encourage you to consult the documentation yourself.</p></div>
+<div class="paragraph"><p>Build the container for private registry:</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">docker build -t localhost:5000/training-books-ms .</code></pre></div></div>
+<div class="paragraph"><p>Now that we understand how to define our containers through Dockerfile, let&#8217;s see how we can build a new version of our container. The build command creates a new container. In this case, we are using the -t argument to specify the tag of the container in registry-friendly way. Please note that there is a dot at the end of the command. The last argument specifies the directory where Dockerfile is located. Since it is in the same folder as the one we are right now, we use dot. <em>RUN THE COMMAND</em>. You&#8217;ll notice that the first eight steps have the Using cache comment. Docker compared this Dockerfile instructions with the cache and decided that there is no need to build new images, thus speeding up the process and, at the same time, saving some disk space. Starting from the step nine, new images had to be built since we created a new JAR file that does not match the one Docker had in its cache. This was a practical demonstration of the need to give a careful thought to the order of Dockerfile instructions.</p></div>
+<div class="paragraph"><p>Push the container to private registry:</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">docker push localhost:5000/training-books-ms</code></pre></div></div>
+<div class="paragraph"><p>We built a new container but, at the moment, it is available only on the same host. If, for example, we&#8217;d like to run it on some other server, we&#8217;d need to first store it in the registry. The push command does that for us. It pushes the specified container to a registry. If the tag is prefixed with IP/port combination, Docker will assume that is the address of the registry. Otherwise, it would push the container to Docker Hub. <em>RUN THE COMMAND</em>. Please observe that only some of the images were actually pushed. Those that already exist were skipped.</p></div>
+<div class="paragraph"><p>The new release is ready to be pulled from any server</p></div></aside></section><section id="mid_break"><h2>Mid-Break</h2><div class="paragraph"><p>(10) minutes for learner re-integration.</p></div>
+<div class="imageblock" style=""><div class="content"><img src="./images/break.png" alt="break" width="300"></div></div></section><section id="docker_engine_running_containers"><h2>Docker Engine: Running Containers</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">docker run -d --name books-ms-db mongo
+
+docker run -d --name books-ms \
+    -p 1234:8080 \
+    --link books-ms-db:db \
+    localhost:5000/training-books-ms
+
+docker exec -it books-ms env | grep DB
+
+docker ps
+
+curl -I localhost:1234/api/v1/books</code></pre></div></div>
+<aside class="notes"><div class="paragraph"><p>Running containers</p></div>
+<div class="paragraph"><p>Run the MongoDB container:</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">docker run -d --name books-ms-db mongo</code></pre></div></div>
+<div class="paragraph"><p>The service we are using relies on MongoDB as data storage. While we could have placed it inside the container we built, that would potentially create problems. For example, scaling a single, do-it-all container is more difficult. We might realise that we need two instances of the service itself and only one of the DB. There are other reasons but we won&#8217;t go into them. The important thing to note is that we need both the service and the MongoDB running as two separate containers. Since, in this case, we do not need anything special from the MongoDB, we&#8217;ll run the official, publicly available, container from Docker Hub. Let&#8217;s run the DB first. <em>RUN THE COMMAND</em>. This is the command in its, almost, simplest form. We specified that the instance should run in detached mode (in the background), that it should be named books-ms-db, and, finally, the name of the container (mongo). Please note that we did not specify any port for the mongo container. You might be asking how are we going to invoke it from our service? The answer lies in links, as you&#8217;ll see in the next command.</p></div>
+<div class="paragraph"><p>Run the service container linked to MongoDB:</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">docker run -d --name books-ms \
+    -p 1234:8080 \
+    --link books-ms-db:db \
+    localhost:5000/training-books-ms</code></pre></div></div>
+<div class="paragraph"><p>We&#8217;ll use the same -d and --name arguments to specify that this container should also run in detached mode and be named books-ms. The -p argument specifies that the internal port 8080 should be exposed as 1234 on the host. Once we run it, our service will be available on the port 1234 which will be internally mapped to the port 8080. The next in line is the --link that will create a connection between the books-ms-db and the book-ms containers. Docker will create environment variables that we&#8217;ll be able to use to find out the internal IP and the port of the MongoDB. Finally, we set that the container that should be run is localhost:5000/training-books-ms. <em>RUN THE COMMAND</em></p></div>
+<div class="paragraph"><p>List environment variables inside the running container:</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">docker exec -it books-ms env | grep DB</code></pre></div></div>
+<div class="paragraph"><p>Let&#8217;s see the environment variables Docker created through the --link instruction and, at the same time, explore one more command. The exec command allows us to execute a command inside a running container. In this case, we&#8217;re executing env that will list all environment variables and piping the result to grep DB so that only those we are interested with are output. <em>RUN THE COMMAND</em>. As you can see, Docker created quite a few variables so that, depending on our needs, we can choose the one (or more) that suit us the best. The important thing to note is that Docker created an internal network with the IP 172.17.0.3. Through it, we can access the DB from this container even though the same IP does not exist in the host. In other words, the database is accessible only through this container.</p></div>
+<div class="paragraph"><p>List all running Docker process:</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">docker ps</code></pre></div></div>
+<div class="paragraph"><p>We can leverage the ps command to list all Docker processes and confirm that our containers are indeed running. <em>RUN THE COMMAND</em>. As you can see, we are currently running three containers. Each of the is described with the container&#8217;s unique identification (ID), the name of the image, command used to start it, how long ago it was created, the status, exposed ports, and, finally, names. Besides the two containers we just run (books-ms and books-ms-db), you can also see the registry where we pushed the container after it was built.</p></div>
+<div class="paragraph"><p>Confirm that the service works:</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">curl -I localhost:1234/api/v1/books</code></pre></div></div>
+<div class="paragraph"><p>Finally, let&#8217;s double check that the containers we run are indeed working. Since the books-ms service depends on MongoDB container, we can send a request that queries the DB and, it the HTTP response status is 200, everything is working as expected. <em>RUN THE COMMAND</em>. Success! Our service inside the container is indeed working.</p></div>
+<div class="paragraph"><p>The service packed inside a Docker container has been deployed</p></div>
+<div class="paragraph"><p>Shall we take a look at a few more Docker commands?</p></div></aside></section><section id="docker_engine_logging_stopping_and_removing_containers"><h2>Docker Engine: Logging, Stopping and Removing Containers</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">docker logs books-ms
+
+docker logs books-ms-db
+
+docker stop books-ms-db books-ms
+
+docker ps -a
+
+docker rm books-ms-db books-ms
+
+docker ps -a</code></pre></div></div>
+<aside class="notes"><div class="paragraph"><p>Logging, Stopping and Removing Containers</p></div>
+<div class="paragraph"><p>Outputting service logs</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">docker logs books-ms</code></pre></div></div>
+<div class="paragraph"><p>Outputting DB logs:</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">docker logs books-ms-db</code></pre></div></div>
+<div class="paragraph"><p>Displaying logs of a running container is easy. All we have to do is run the logs command followed with the name of the ID of the container. [RUN COMMANDS]. Please note that we could use the -f argument. In that case, Docker would tail logs displaying them in near-realtime. It&#8217;s worth mentioning that the best practice is to write the code that sends logs to standard output. If needed, we can always instruct Docker to redirect them to a file or, for example, syslog.</p></div>
+<div class="paragraph"><p>Stopping containers:</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">docker stop books-ms-db books-ms</code></pre></div></div>
+<div class="paragraph"><p>We can just as easily stop a running container. <em>RUN THE COMMAND</em></p></div>
+<div class="paragraph"><p>Listing all Docker processes:</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">docker ps -a</code></pre></div></div>
+<div class="paragraph"><p>To display all (not only running) processes, please use the -a argument. <em>RUN THE COMMAND</em>. Since we stopped our containers, their status is EXITED.</p></div>
+<div class="paragraph"><p>Removing containers:</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">docker rm books-ms-db books-ms</code></pre></div></div>
+<div class="paragraph"><p>We can also remove containers with the --rm argument. <em>RUN THE COMMAND</em>.</p></div>
+<div class="paragraph"><p>Listing all Docker processes:</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="bash language-bash">docker ps -a</code></pre></div></div>
+<div class="paragraph"><p><em>RUN THE COMMAND</em>. This time, our containers are absent from the list of all processes.</p></div>
+<div class="paragraph"><p>The service has been removed from the server</p></div>
+<div class="paragraph"><p>Let us explore few other tools available in the Docker ecosystem. We won&#8217;t have much time to spend with them. Instead, I&#8217;ll give you only a brief overview that you can leverage later on when you explore Docker in more depth.</p></div></aside></section><section id="docker_compose"><h2>Docker Compose</h2><div class="imageblock right top" style=""><div class="content"><img src="./images/docker-compose.png" alt="docker compose" width="200"></div></div>
+<div class="ulist"><ul><li><p><strong>Docker Compose</strong> allows defining multi-container application with all of its dependencies in a single file, then spin your application up in a single command.</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p>Docker Compose allows defining multi-container application with all of its dependencies in a single file, then spin your application up in a single command. The main advantage is that it allows us to specify in an easy to read and write format everything our containers need for running. Instead of remembering all the arguments and dependencies we used previously, with Docker Compose we would run short single commands like docker-compose up, docker-compose stop, and so on. Since everything is defined in a docker-compose.yml file, compose would pass detailed instructions to the Engine.</p></div></aside></section><section id="docker_swarm"><h2>Docker Swarm</h2><div class="imageblock right top" style=""><div class="content"><img src="./images/docker-swarm.png" alt="docker swarm" width="200"></div></div>
+<div class="ulist"><ul><li><p><strong>Docker Swarm</strong> provides native clustering capabilities to turn a group of Docker engines into a single, virtual Docker Engine. With these pooled resources, you can scale out your application as if it were running on a single, huge computer.</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p>Docker Swarm provides native clustering capabilities to turn a group of Docker engines into a single, virtual Docker Engine. With these pooled resources, you can scale out your application as if it were running on a single, huge computer. Running a few applications packed inside several containers is easy. Doing the same with tens, hundreds, or even thousands, is quite challenging. Where should we deploy a service? Which server has available resources. How to scale? What happens in case a node is down? Those, and many other scenarios, can be solved with Docker Swarm. It, or a similar tool like Mesos or Kubernetes, is indispensable in any but smallest datacenters.</p></div></aside></section><section id="docker_machine"><h2>Docker Machine</h2><div class="imageblock right top" style=""><div class="content"><img src="./images/docker-machine.png" alt="docker machine" width="175"></div></div>
+<div class="ulist"><ul><li><p><strong>Docker Machine</strong> automatically sets up Docker on your computer, on cloud providers, and inside your data center. Docker Machine provisions the hosts, installs Docker Engine on them, and then configures the Docker client to talk to the Docker Engines.</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p>Docker Machine automatically sets up Docker on your computer, on cloud providers, and inside your data center. Docker Machine provisions the hosts, installs Docker Engine on them, and then configures the Docker client to talk to the Docker Engines.</p></div></aside></section><section id="kitematic"><h2>Kitematic</h2><div class="imageblock right top" style=""><div class="content"><img src="./images/kitematic.png" alt="kitematic" width="250"></div></div>
+<div class="ulist"><ul><li><p><strong>Kitematic</strong> is a completely automated process that installs and configures the Docker environment on your machine. Build and run containers through a simple, yet powerful graphical user interface (GUI).</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p>Kitematic is a completely automated process that installs and configures the Docker environment on your machine. Build and run containers through a simple, yet powerful graphical user interface (GUI).</p></div></aside></section><section id="docker_introduction_review"><h2>Docker Introduction: Review</h2></section><section id="docker_introduction_review_2"><h2>Docker Introduction: Review</h2><div class="ulist"><ul><li><p>Docker benefits &amp; advantages</p></li><li><p>Docker use cases</p></li><li><p>Docker Hub and Registry, Engine, Compose, Swarm, Machine, Kitematic</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p><strong>Docker benefits &amp; advantages:</strong></p></div>
+<div class="paragraph"><p>Some of the Docker benefits we discussed is self-sufficiency, isolation, immutability, reliability, and scalability. We showed how it differs from virtual machines and why containers use much less resources. We also discussed few of the ways we can organise our services and applications. They can be fully self-sufficient with everything inside a single container (API, application layers, database, system and runtime libraries, and so on. We also discussed that in many cases it is a better solution to split an application into multiple containers with, for example, service running in one and a database in another.</p></div>
+<div class="paragraph"><p><strong>Docker use cases:</strong></p></div>
+<div class="paragraph"><p>We discussed some of the most common use cases like local development and testing, continuous integration, delivery, or deployment, reliable and repeatable deployments, and so on.</p></div>
+<div class="paragraph"><p>From there on we jumped into some of the tools in the Docker ecosystem.</p></div>
+<div class="paragraph"><p>Docker Hub and Registry
+We pulled an image from Docker Hub and, later on, pushed it to the private registry running on our server.</p></div>
+<div class="paragraph"><p><strong>Docker Engine:</strong></p></div>
+<div class="paragraph"><p>We explored some of the common commands available in the Docker Engine. We explored Dockerfile that we used to define all the steps Engine needs to build the service container which, later on, we pushed to the private registry. We run the MongoDB container that served as a database for your service which we also run as a container. We learned how to enter a running container as well as how to list all Docker processes. We explored commands that help us display logs, and stop and remove a container.</p></div>
+<div class="paragraph"><p><strong>Docker Compose:</strong></p></div>
+<div class="paragraph"><p>We briefly went through Docker Compose that can be used to specify all the parameters required to operate containers.</p></div>
+<div class="paragraph"><p><strong>Docker Swarm:</strong></p></div>
+<div class="paragraph"><p>We discussed the usage of Docker Swarm as the containers orchestrator inside a datacenter.</p></div>
+<div class="paragraph"><p><strong>Docker Machine:</strong></p></div>
+<div class="paragraph"><p>We saw that Docker Machine can be utilised to quickly create virtual machines ready for usage within the Docker Ecosystem.</p></div>
+<div class="paragraph"><p><strong>Kitematic:</strong></p></div>
+<div class="paragraph"><p>Finally, we mentioned that on Windows and OS X operating systems, we can use Kitematic to configure our system to run Docker tools. It also provides a useful UI.</p></div></aside></section><section id="docker_introduction_exercise"><h2>Docker Introduction: Exercise</h2><div class="paragraph"><p><a href="labs.html#_docker_introduction_exercise">Docker Introduction: Exercise</a></p></div></section></section></div></div><script src="reveal.js/lib/js/head.min.js"></script><script src="reveal.js/js/reveal.js"></script><script>// See https://github.com/hakimel/reveal.js#configuration for a full list of configuration options
+Reveal.initialize({
+  // Display controls in the bottom right corner
+  controls: true,
+  // Display a presentation progress bar
+  progress: true,
+  // Display the page number of the current slide
+  slideNumber: true,
+  // Push each slide change to the browser history
+  history: true,
+  // Enable keyboard shortcuts for navigation
+  keyboard: true,
+  // Enable the slide overview mode
+  overview: true,
+  // Vertical centering of slides
+  center: true,
+  // Enables touch navigation on devices with touch input
+  touch: true,
+  // Loop the presentation
+  loop: false,
+  // Change the presentation direction to be RTL
+  rtl: false,
+  // Turns fragments on and off globally
+  fragments: true,
+  // Flags if the presentation is running in an embedded mode,
+  // i.e. contained within a limited portion of the screen
+  embedded: false,
+  // Number of milliseconds between automatically proceeding to the
+  // next slide, disabled when set to 0, this value can be overwritten
+  // by using a data-autoslide attribute on your slides
+  autoSlide: 0,
+  // Stop auto-sliding after user input
+  autoSlideStoppable: true,
+  // Enable slide navigation via mouse wheel
+  mouseWheel: false,
+  // Hides the address bar on mobile devices
+  hideAddressBar: true,
+  // Opens links in an iframe preview overlay
+  previewLinks: false,
+  // Theme (e.g., beige, black, league, night, serif, simple, sky, solarized, white)
+  // NOTE setting the theme in the config no longer works in reveal.js 3.x
+  //theme: Reveal.getQueryHash().theme || 'black',
+  // Transition style (e.g., none, fade, slide, convex, concave, zoom)
+  transition: Reveal.getQueryHash().transition || 'slide',
+  // Transition speed (e.g., default, fast, slow)
+  transitionSpeed: 'default',
+  // Transition style for full page slide backgrounds (e.g., none, fade, slide, convex, concave, zoom)
+  backgroundTransition: 'fade',
+  // Number of slides away from the current that are visible
+  viewDistance: 3,
+  // Parallax background image (e.g., "'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg'")
+  parallaxBackgroundImage: '',
+  // Parallax background size in CSS syntax (e.g., "2100px 900px")
+  parallaxBackgroundSize: '',
+
+  // The "normal" size of the presentation, aspect ratio will be preserved
+  // when the presentation is scaled to fit different resolutions. Can be
+  // specified using percentage units.
+  width: 1280,
+  height: 800,
+
+  // Factor of the display size that should remain empty around the content
+  margin: 0.1,
+
+  // Bounds for smallest/largest possible scale to apply to content
+  minScale: 0.2,
+  maxScale: 1.5,
+
+  // Optional libraries used to extend on reveal.js
+  dependencies: [
+      { src: 'reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+      { src: 'reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+      { src: 'reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      { src: 'reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+  ]
+});</script><div id="cloudbees-ruban">
+  <img id="cloudbees-logo" src="images/cloudbees_university.svg" alt="CloudBees University Logo"/>
+
+  <span id="presentation-title">CloudBees Jenkins Platform</span>
+
+  <a id="linkToToc" href="#toc"><img src="images/toc-icon.png" alt="ToC Icon" /></a>
+
+  <span id="cloudbees-copyright " class="copyright">© 2016 CloudBees, Inc.  All Rights Reserved</span>
+</div>
+
+<div id="watermark">
+  <p id="watermark-text">© 2016 CloudBees, Inc.  All Rights Reserved</p>
+</div></body></html>

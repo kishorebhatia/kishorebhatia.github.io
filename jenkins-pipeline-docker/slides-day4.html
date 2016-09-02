@@ -1,0 +1,193 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>CloudBees Jenkins Platform</title><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui" name="viewport"><link href="reveal.js/css/reveal.css" rel="stylesheet"><link rel="stylesheet" href="./build/build.css" id="theme"><link href="reveal.js/lib/css/zenburn.css" rel="stylesheet"><script>document.write( '<link rel="stylesheet" href="reveal.js/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );</script></head><body><div class="reveal"><div class="slides"><section><h1>CloudBees Jenkins Platform</h1><div class="paragraph"><p>Pipeline with Docker (Day 4)</p></div><p><small></small></p></section>
+<section><section id="the_project_part_2_day_4"><h2>The Project - Part 2 (Day 4)</h2></section><section id="review_of_day_3"><h2>Review Of Day 3</h2><div class="ulist"><ul><li><p>Defined the project steps</p></li><li><p>Created a new Pipeline job</p></li><li><p>Defined steps that clone the code</p></li><li><p>Defined steps that run pre-deployment tests</p></li><li><p>Defined steps that build and push the container</p></li><li><p>Defined steps that deploy the container</p></li><li><p>Defined steps that run post-deployment tests</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p>We did quite a lot yesterday. We created a new Pipeline job, setup a few nodes where our tasks will run. We used one node for all pre-deployment tasks and the other to deploy our service. We checked out the code from Git and declared a variable holding the path to the current directory. We used that variable to create a new directory and assign permissions through the sh step. We split the steps into a few stages; pre-deployment tests, build, deploy, and post-deployment tests. We pulled the Docker image containing all our tests and used the Pipeline step inside to run them. That run resulted in a JAR file containing the new release of the service. We used it to build a new Docker image containing the release and pushed it to the private registry. From there on, we deployed the new release to the production server and run post-deployment tests that ensured the release was indeed deployed correctly.</p></div>
+<div class="paragraph"><p>You got the assignment to apply the knowledge into your projects. Let&#8217;s take a look at a few examples you sent me. <em>INSTRUCTOR SHOWS A COUPLE OF EXAMPLES</em>.</p></div></aside></section><section id="in_this_unit_you_will_learn"><h2>In This Unit: You Will Learn</h2><div class="ulist"><ul><li><p>How to use more advanced features of the CloudBees Pipeline plugin and Docker</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p>Yesterday, we finished a simple implementation of the deployment lifecycle project using the CloudBees Pipeline and Docker. Today, we&#8217;ll work on some of the advanced features we can leverage to make the deployment flow even more robust. As you&#8217;ll see very soon, more advanced does not necessarily mean more complicated. Indeed, we tried our best to make all the features of the Pipeline easy to learn and use.</p></div></aside></section><section id="in_this_unit_you_will_be_able_to"><h2>In This Unit: You Will Be Able To</h2><div class="ulist"><ul><li><p>Create advanced deployment lifecycle with Jenkins Pipeline and Docker</p></li></ul></div></section><section id="the_project_cont"><h2>The Project (cont.)</h2><div class="ulist"><ul><li><p>Request manual confirmation before deployment</p></li><li><p>Run steps in parallel</p></li><li><p>Control the steps execution</p></li><li><p>Add checkpoints on critical or after long running processes</p></li><li><p>Visualize the deployment pipeline</p></li><li><p>Convert the job into a template</p></li><li><p>Leverage multi branch pipeline and Jenkinsfile features</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p>Let&#8217;s us, briefly, go through the tasks we&#8217;ll learn today.</p></div>
+<div class="paragraph"><p><strong>Request manual confirmation before deployment:</strong></p></div>
+<div class="paragraph"><p>We&#8217;ll define a step in the workflow that will request a manual confirmation before a new release is deployed.</p></div>
+<div class="paragraph"><p><strong>Run steps in parallel:</strong></p></div>
+<div class="paragraph"><p>We&#8217;ll try to speed up the deployment time by executing steps in parallel.</p></div>
+<div class="paragraph"><p><strong>Control the steps execution:</strong></p></div>
+<div class="paragraph"><p>In many cases, some conditional logic is required. We&#8217;ll see how we could enhance our Pipeline script by controlling the execution of the steps.</p></div>
+<div class="paragraph"><p><strong>Add checkpoints on critical or after long running processes:</strong></p></div>
+<div class="paragraph"><p>Even though we should strive for perfection and have systems that never fail, unexpected tends to happen from time to time. We&#8217;ll explore one of the way to fight the unexpected by using checkpoints that will allow us to restart the flow from specified points in the script.</p></div>
+<div class="paragraph"><p><strong>Visualize the deployment pipeline:</strong></p></div>
+<div class="paragraph"><p>Even though with the Pipeline we are moving towards jobs definitions expressed through code, visualisation is still a very important aspect of the flow. We&#8217;ll see how we could visualise the execution of the pipeline we built.</p></div>
+<div class="paragraph"><p><strong>Convert the job into a template:</strong></p></div>
+<div class="paragraph"><p>Jenkins jobs tend to be very repetitive. Managing many jobs is very time consuming and error prone endeavour. We&#8217;ll learn how we can improve jobs maintainability by converting the Pipeline job we created into a template.</p></div>
+<div class="paragraph"><p><strong>Leverage multi branch pipeline and Jenkinsfile features:</strong></p></div>
+<div class="paragraph"><p>Managing pipeline scripts in a centralised location like Jenkins tends to complicate development. Wouldn&#8217;t it be better if the Pipeline code is located in the same repository as the application itself? Moreover, wouldn&#8217;t it be a good improvement if we could define different flows depending on the branch? We&#8217;ll explore both options through the Multibranch Pipeline job and Jenkinsfile.</p></div></aside></section><section id="key_pipeline_dsl_input_task"><h2>Key Pipeline DSL – input: Task</h2><div class="ulist"><ul><li><p>Add an input with the message <em>Please confirm deployment to production</em> and the button with the text <em>Submit</em>.</p></li><li><p>The input should be requested prior to deployment to production.</p></li><li><p>Add the parameter for additional notes and echo the value.</p></li><li><p>Make sure that only the user <em>manager</em> is allowed to use this input.</p></li><li><p>Use user/pass <em>manager/manager</em> to login before approving the deployment.</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p>The "input" step pauses flow execution and allows the user to interact and control the flow of the build. Only a basic "process" or "abort" option is provided in the stage view. You can optionally request information back, hence the name of the step. The parameter entry screen can be accessed via a link at the bottom of the build console log or via link in the sidebar for a build.</p></div></aside></section><section id="key_pipeline_dsl_input_solution"><h2>Key Pipeline DSL – input: Solution</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="groovy language-groovy">    def response = input message: 'Please confirm deployment to production',
+        ok: 'Submit',
+        parameters: [[
+            $class: 'StringParameterDefinition',
+            defaultValue: '',
+            description: 'Additional comments',
+            name: ''
+        ]],
+        submitter: 'manager'
+    echo response</code></pre></div></div></section><section id="key_pipeline_dsl_parallel_task"><h2>Key Pipeline DSL – parallel: Task</h2><div class="paragraph"><p>Modify the script so that <em>service</em> and <em>db</em> containers are pulled in parallel.</p></div>
+<aside class="notes"><div class="paragraph"><p>Executing steps in a sequence can result in a long build time. We can reduce it through the parallel step. It allows the execution of multiple flows in parallel.</p></div></aside></section><section id="key_pipeline_dsl_parallel_solution"><h2>Key Pipeline DSL – parallel: Solution</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="groovy language-groovy">//    docker.image("localhost:5000/training-books-ms").pull()
+//    docker.image("mongo").pull()
+    def pull = [:]
+    pull["service"] = {
+        docker.image("localhost:5000/training-books-ms").pull()
+    }
+    pull["db"] = {
+        docker.image("mongo").pull()
+    }
+    parallel pull</code></pre></div></div></section><section id="reality_check"><h2>Reality Check</h2><div class="ulist"><ul><li><p>Questions on the prep and the Project?</p></li><li><p>Clear on the input and parallel DSL?</p></li><li><p>Ready for the execution control?</p></li></ul></div></section><section id="key_pipeline_dsl_execution_control"><h2>Key Pipeline DSL – execution control</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="groovy language-groovy">retry(10) {
+    // some block
+}
+
+sleep time: 10, unit: 'MINUTES'
+
+waitUntil {
+    // some block
+}
+
+timeout(time: 100, unit: 'SECONDS') {
+    // some block
+}
+
+while(something) {
+    // do something
+    if (something_else) {
+        // do something else
+    }
+}</code></pre></div></div>
+<aside class="notes"><div class="paragraph"><p>In many cases, some conditional logic is required. We&#8217;ll see how we could enhance our Pipeline script by controlling the execution of the steps. There are quite a few execution control steps. We can use retry to repeat a block of steps, wait until an even occurs, pause the execution for a specified period, or timeout if a block of code runs for more than a give period. If those are not enough or do not fulfil the needs, we can always resolve to native Groovy control flow.</p></div></aside></section><section id="key_pipeline_dsl_execution_control_task"><h2>Key Pipeline DSL – execution control: Task</h2><div class="paragraph"><p>Change the script so that the execution of <em>post-deployment tests</em> is retried in case of a failure.</p></div>
+<aside class="notes"><div class="paragraph"><p>The "retry" instruction retries the execution of commands in the body up to the specified number of times.</p></div></aside></section><section id="key_pipeline_dsl_execution_control_solution"><h2>Key Pipeline DSL – execution control: Solution</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="groovy language-groovy">retry(2) {
+    sh "./run_tests.sh"
+}</code></pre></div></div></section><section id="key_pipeline_dsl_execution_control_task_2"><h2>Key Pipeline DSL – execution control: Task</h2><div class="paragraph"><p>Change the script so that there is a pause of <em>2 seconds</em> after the service is deployed.</p></div>
+<aside class="notes"><div class="paragraph"><p>The "sleep" instruction pauses the execution of the Pipeline.</p></div></aside></section><section id="key_pipeline_dsl_execution_control_solution_2"><h2>Key Pipeline DSL – execution control: Solution</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="groovy language-groovy">sleep 2</code></pre></div></div></section><section id="mid_break"><h2>Mid-Break</h2><div class="paragraph"><p>(10) minutes for learner re-integration.</p></div>
+<div class="imageblock" style=""><div class="content"><img src="./images/break.png" alt="break" width="300"></div></div></section><section id="key_pipeline_dsl_checkpoint_task"><h2>Key Pipeline DSL – checkpoint: Task</h2><div class="paragraph"><p>Add checkpoint <em>deploy</em> between the nodes <em>cd</em> and <em>production</em>.</p></div>
+<aside class="notes"><div class="paragraph"><p>Complex pipeline may fail due to external causes (test resource offline, etc…). Restarting from step 1 would be a waste of time and resources. Checkpoints capture the pipeline state so that it can be restarted later.</p></div></aside></section><section id="key_pipeline_dsl_checkpoint_solution"><h2>Key Pipeline DSL – checkpoint: Solution</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="groovy language-groovy">checkpoint "deploy"</code></pre></div></div></section><section id="pipeline_stage_view"><h2>Pipeline Stage View</h2><div class="imageblock" style=""><div class="content"><img src="./images/cje-pipeline-stage-view.png" alt="cje pipeline stage view" width="800"></div></div>
+<aside class="notes"><div class="paragraph"><p>Even though with the Pipeline we are moving towards jobs definitions expressed through code, visualisation is still a very important aspect of the flow. When you have complex builds pipelines, it is useful to be able to see the progress of each stage. To that end, Jenkins Enterprise includes an extended visualization of pipeline build history on the index page of a flow project, under Stage View. (You can also click on Full Stage View to get a full-screen view.)</p></div>
+<div class="paragraph"><p>By adding Stage View to your Pipeline jobs it allows users to easily identify the progress of each stage within the job.</p></div></aside></section><section id="pipeline_and_job_template_task"><h2>Pipeline and Job Template: Task</h2><div class="ulist"><ul><li><p>Convert the deployment pipeline script into a template named <em>my-template</em>.</p></li><li><p>Replace the service name (<em>training-books-ms</em>), the registry IP and port (<em>localhost:5000</em>) and domain (<em>http://<strong>&lt;IP&gt;</strong>:8081</em>) with variables.</p></li><li><p>Create a new job called <em>my-pipeline-from-template</em>. The job type should be <em>my-template</em>.</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p>Jenkins jobs tend to be very repetitive. Managing many jobs is very time consuming and error prone endeavour. We&#8217;ll learn how we can improve jobs maintainability by converting the Pipeline job we created into a template.</p></div></aside></section><section id="pipeline_and_job_template_solution"><h2>Pipeline and Job Template: Solution</h2><div class="imageblock" style=""><div class="content"><img src="./images/cje-pipeline-from-template.png" alt="cje pipeline from template" width="700"></div></div></section><section id="multi_branch_pipeline_and_jenkinsfile"><h2>Multi-branch Pipeline and Jenkinsfile</h2><div class="imageblock" style=""><div class="content"><img src="./images/cje-multibranch.png" alt="cje multibranch" width="800"></div></div>
+<aside class="notes"><div class="paragraph"><p>Multi-branch Pipeline job type allows us to use Jenkinsfile as the source of the Pipeline script. Once the job is created, Jenkins will scan the code repository and create sub-projects for each branch. Each of those sub-projects will run the Pipeline script defined in the Jenkinsfile. Having the ability to use a different Jenkinsfile depending on the branch, allows us to fine tune the flow depending on a branch type. For example, the flow defined in Jenkinsfile in the master branch can perform the full delivery all the way until deployment to production. On the other hand, Jenkinsfile inside a feature branch could perform all kinds of testing but skip the deployment itself.</p></div>
+<div class="paragraph"><p>Create new job called "my-multibranch". Select "Multibranch Pipeline" as the job type.</p></div></aside></section><section id="multi_branch_pipeline_and_jenkinsfile_2"><h2>Multi-branch Pipeline and Jenkinsfile</h2><div class="imageblock" style=""><div class="content"><img src="./images/cje-multibranch-config.png" alt="cje multibranch config" width="800"></div></div>
+<aside class="notes"><div class="paragraph"><p>Click the "Add Source" button, select "Git" and type "https://github.com/cloudbees/training-books-ms.git" as project repository. Once "Save" button is clicked, Jenkins will scan all branches and create sub-projects for all of them.</p></div></aside></section><section id="multi_branch_pipeline_and_jenkinsfile_3"><h2>Multi-branch Pipeline and Jenkinsfile</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="groovy language-groovy">def serviceName = "training-books-ms"
+def registry = "localhost:5000"
+def flow
+
+node("cd") {
+    git "https://github.com/cloudbees/${serviceName}.git"
+    flow = load "/mnt/scripts/pipeline-common.groovy"
+    flow.runPreDeploymentTests(serviceName, registry)
+    flow.build(serviceName, registry)
+}
+checkpoint "deploy"
+node("cd") {
+    flow.deploy(serviceName, registry)
+    flow.runPostDeploymentTests(serviceName, registry, "http://&lt;IP&gt;:8081")
+}</code></pre></div></div>
+<aside class="notes"><div class="paragraph"><p>This is the content of the Jenkinsfile located in the master branch of the <a href="https://github.com/cloudbees/training-books-ms" class="bare">https://github.com/cloudbees/training-books-ms</a> repository. Functionally, the result is the same as in the Pipeline script we created earlier. However, there is a syntax difference. Unlike previous Pipeline that was defined through a single script, this time we are loading functions from a separate script. This, together with Jenkinsfile placed in code repository, allows developers to define the flow for the own project and keep it in the repository together with the project code. By externalizing common functions inside a separate script we are able to avoid repetition and let developers focus on the flow itself.</p></div></aside></section><section id="multi_branch_pipeline_and_jenkinsfile_4"><h2>Multi-branch Pipeline and Jenkinsfile</h2><div class="imageblock" style=""><div class="content"><img src="./images/cje-multibranch-console-security.png" alt="cje multibranch console security" width="800"></div></div>
+<aside class="notes"><div class="paragraph"><p>When external scripts are used (in this example Jenkinsfile), Pipeline runs with security restrictions. It will fail if it contains unauthorized instructions.</p></div></aside></section><section id="multi_branch_pipeline_and_jenkinsfile_5"><h2>Multi-branch Pipeline and Jenkinsfile</h2><div class="imageblock" style=""><div class="content"><img src="./images/cje-script-approval.png" alt="cje script approval" width="800"></div></div>
+<aside class="notes"><div class="paragraph"><p>All unapproved instructions will be listed in the "In-Process Script Approval" screen. Once approved, job can be re-run.</p></div></aside></section><section id="pipeline_global_library"><h2>Pipeline Global Library</h2><div class="ulist"><ul><li><p>Ability to share common parts of Pipeline scripts across multiple jobs</p></li><li><p>Keep scripts DRY</p></li><li><p>Shared library script Git repository</p></li><li><p>Pipeline step <strong>load</strong> vs global library</p></li></ul></div>
+<div class="paragraph"><p>Please visit Pipeline Global Library (<a href="https://github.com/jenkinsci/workflow-cps-global-lib-plugin/blob/master/README.md" class="bare">https://github.com/jenkinsci/workflow-cps-global-lib-plugin/blob/master/README.md</a>) for more info.</p></div></section><section id="the_project_part_2_review"><h2>The Project - Part 2: Review</h2></section><section id="the_project_part_2_review_2"><h2>The Project - Part 2: Review</h2><div class="ulist"><ul><li><p>Pipeline Job</p></li><li><p>Job Template</p></li><li><p>Multibranch Pipeline And Jenkinsfile</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p>Pipeline job:</p></div>
+<div class="paragraph"><p><em>WALK THE ATTENDEES THROUGH THE PIPELINE JOB THEY CREATED AND COMMENT ON EACH LINE</em></p></div>
+<div class="paragraph"><p>Job template:</p></div>
+<div class="paragraph"><p><em>WALK THE ATTENDEES THROUGH THE JOB TEMPLATE THEY CREATED AND COMMENT ON EACH LINE</em></p></div>
+<div class="paragraph"><p>Multibranch Pipeline and Jenkinsfile:</p></div>
+<div class="paragraph"><p><em>WALK THE ATTENDEES THROUGH THE JOB CONFIGURATION</em>
+<em>WALK THE ATTENDEES THROUGH THE JENKINSFILE AND COMMENT ON EACH LINE</em></p></div></aside></section><section id="course_review"><h2>Course Review</h2></section><section id="course_review_2"><h2>Course Review</h2><div class="ulist"><ul><li><p>The Need For The Pipeline</p></li><li><p>What Is Cloudbees Pipeline?</p></li><li><p>The Syntax And The Snippet Generator</p></li><li><p>Docker Containers</p></li><li><p>Docker Tools</p></li><li><p>The Project</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p>Pipeline job:</p></div>
+<div class="paragraph"><p><em>WALK THE ATTENDEES THROUGH THE PIPELINE JOB THEY CREATED AND COMMENT ON EACH LINE</em></p></div>
+<div class="paragraph"><p>Job template:</p></div>
+<div class="paragraph"><p><em>WALK THE ATTENDEES THROUGH THE JOB TEMPLATE THEY CREATED AND COMMENT ON EACH LINE</em></p></div>
+<div class="paragraph"><p>Multibranch Pipeline and Jenkinsfile:</p></div>
+<div class="paragraph"><p><em>WALK THE ATTENDEES THROUGH THE JOB CONFIGURATION</em>
+<em>WALK THE ATTENDEES THROUGH THE JENKINSFILE AND COMMENT ON EACH LINE</em></p></div></aside></section><section id="the_project_part_2_exercise"><h2>The Project - Part 2: Exercise</h2><div class="paragraph"><p><a href="labs.html#_the_project_part_2_exercise">The Project - Part 2: Exercise</a></p></div></section><section id="syllabus_and_references"><h2>Syllabus and References</h2><div class="ulist"><ul><li><p>CloudBees Pipeline Plugin Suite (<a href="http://documentation.cloudbees.com/docs/cje-user-guide/workflow.html" class="bare">http://documentation.cloudbees.com/docs/cje-user-guide/workflow.html</a>)</p></li><li><p>CloudBees Docker Pipeline Plugin (<a href="http://documentation.cloudbees.com/docs/cje-user-guide/docker-workflow.html" class="bare">http://documentation.cloudbees.com/docs/cje-user-guide/docker-workflow.html</a>)</p></li><li><p>Docker Docs (<a href="https://docs.docker.com/" class="bare">https://docs.docker.com/</a>)</p></li></ul></div></section></section></div></div><script src="reveal.js/lib/js/head.min.js"></script><script src="reveal.js/js/reveal.js"></script><script>// See https://github.com/hakimel/reveal.js#configuration for a full list of configuration options
+Reveal.initialize({
+  // Display controls in the bottom right corner
+  controls: true,
+  // Display a presentation progress bar
+  progress: true,
+  // Display the page number of the current slide
+  slideNumber: true,
+  // Push each slide change to the browser history
+  history: true,
+  // Enable keyboard shortcuts for navigation
+  keyboard: true,
+  // Enable the slide overview mode
+  overview: true,
+  // Vertical centering of slides
+  center: true,
+  // Enables touch navigation on devices with touch input
+  touch: true,
+  // Loop the presentation
+  loop: false,
+  // Change the presentation direction to be RTL
+  rtl: false,
+  // Turns fragments on and off globally
+  fragments: true,
+  // Flags if the presentation is running in an embedded mode,
+  // i.e. contained within a limited portion of the screen
+  embedded: false,
+  // Number of milliseconds between automatically proceeding to the
+  // next slide, disabled when set to 0, this value can be overwritten
+  // by using a data-autoslide attribute on your slides
+  autoSlide: 0,
+  // Stop auto-sliding after user input
+  autoSlideStoppable: true,
+  // Enable slide navigation via mouse wheel
+  mouseWheel: false,
+  // Hides the address bar on mobile devices
+  hideAddressBar: true,
+  // Opens links in an iframe preview overlay
+  previewLinks: false,
+  // Theme (e.g., beige, black, league, night, serif, simple, sky, solarized, white)
+  // NOTE setting the theme in the config no longer works in reveal.js 3.x
+  //theme: Reveal.getQueryHash().theme || 'black',
+  // Transition style (e.g., none, fade, slide, convex, concave, zoom)
+  transition: Reveal.getQueryHash().transition || 'slide',
+  // Transition speed (e.g., default, fast, slow)
+  transitionSpeed: 'default',
+  // Transition style for full page slide backgrounds (e.g., none, fade, slide, convex, concave, zoom)
+  backgroundTransition: 'fade',
+  // Number of slides away from the current that are visible
+  viewDistance: 3,
+  // Parallax background image (e.g., "'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg'")
+  parallaxBackgroundImage: '',
+  // Parallax background size in CSS syntax (e.g., "2100px 900px")
+  parallaxBackgroundSize: '',
+
+  // The "normal" size of the presentation, aspect ratio will be preserved
+  // when the presentation is scaled to fit different resolutions. Can be
+  // specified using percentage units.
+  width: 1280,
+  height: 800,
+
+  // Factor of the display size that should remain empty around the content
+  margin: 0.1,
+
+  // Bounds for smallest/largest possible scale to apply to content
+  minScale: 0.2,
+  maxScale: 1.5,
+
+  // Optional libraries used to extend on reveal.js
+  dependencies: [
+      { src: 'reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+      { src: 'reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+      { src: 'reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      { src: 'reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+  ]
+});</script><div id="cloudbees-ruban">
+  <img id="cloudbees-logo" src="images/cloudbees_university.svg" alt="CloudBees University Logo"/>
+
+  <span id="presentation-title">CloudBees Jenkins Platform</span>
+
+  <a id="linkToToc" href="#toc"><img src="images/toc-icon.png" alt="ToC Icon" /></a>
+
+  <span id="cloudbees-copyright " class="copyright">© 2016 CloudBees, Inc.  All Rights Reserved</span>
+</div>
+
+<div id="watermark">
+  <p id="watermark-text">© 2016 CloudBees, Inc.  All Rights Reserved</p>
+</div></body></html>

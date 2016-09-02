@@ -1,0 +1,181 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>CloudBees Jenkins Platform</title><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui" name="viewport"><link href="reveal.js/css/reveal.css" rel="stylesheet"><link rel="stylesheet" href="./build/build.css" id="theme"><link href="reveal.js/lib/css/zenburn.css" rel="stylesheet"><script>document.write( '<link rel="stylesheet" href="reveal.js/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );</script></head><body><div class="reveal"><div class="slides"><section><h1>CloudBees Jenkins Platform</h1><div class="paragraph"><p>Pipeline with Docker (Day 3)</p></div><p><small></small></p></section>
+<section><section id="the_project_part_1_day_3"><h2>The Project - Part 1 (Day 3)</h2></section><section id="review_of_day_2_concepts_and_exercise"><h2>Review Of Day 2 Concepts And Exercise</h2><div class="ulist"><ul><li><p>Docker benefits &amp; advantages</p></li><li><p>Docker use cases</p></li><li><p>Docker Hub and Registry, Engine, Compose, Swarm, Machine, Kitematic</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p><strong>Docker benefits &amp; advantages:</strong></p></div>
+<div class="paragraph"><p>Some of the Docker benefits we discussed is self-sufficiency, isolation, immutability, reliability, and scalability. We showed how it differs from virtual machines and why containers use much less resources. We also discussed few of the ways we can organise our services and applications. They can be fully self-sufficient with everything inside a single container (API, application layers, database, system and runtime libraries, and so on. We also discussed that in many cases it is a better solution to split an application into multiple containers with, for example, service running in one and a database in another.</p></div>
+<div class="paragraph"><p><strong>Docker use cases:</strong></p></div>
+<div class="paragraph"><p>We discussed some of the most common use cases like local development and testing, continuous integration, delivery, or deployment, reliable and repeatable deployments, and so on.</p></div>
+<div class="paragraph"><p>From there on we jumped into some of the tools in the Docker ecosystem.</p></div>
+<div class="paragraph"><p><strong>Docker Hub and Registry:</strong></p></div>
+<div class="paragraph"><p>We pulled an image from Docker Hub and, later on, pushed it to the private registry running on our server.</p></div>
+<div class="paragraph"><p><strong>Docker Engine:</strong></p></div>
+<div class="paragraph"><p>We explored some of the common commands available in the Docker Engine. We explored Dockerfile that we used to define all the steps Engine needs to build the service container which, later on, we pushed to the private registry. We run the MongoDB container that served as a database for your service which we also run as a container. We learned how to enter a running container as well as how to list all Docker processes. We explored commands that help us display logs, and stop and remove a container.</p></div>
+<div class="paragraph"><p><strong>Docker Compose:</strong></p></div>
+<div class="paragraph"><p>We briefly went through Docker Compose that can be used to specify all the parameters required to operate containers.</p></div>
+<div class="paragraph"><p><strong>Docker Swarm:</strong></p></div>
+<div class="paragraph"><p>We discussed the usage of Docker Swarm as the containers orchestrator inside a datacenter.</p></div>
+<div class="paragraph"><p><strong>Docker Machine:</strong></p></div>
+<div class="paragraph"><p>We saw that Docker Machine can be utilised to quickly create virtual machines ready for usage within the Docker Ecosystem.</p></div>
+<div class="paragraph"><p><strong>Kitematic:</strong></p></div>
+<div class="paragraph"><p>Finally, we mentioned that on Windows and OS X operating systems, we can use Kitematic to configure our system to run Docker tools. It also provides a useful UI.</p></div>
+<div class="paragraph"><p><strong>Exercise:</strong></p></div>
+<div class="paragraph"><p><em>TEACHER DISPLAYS AND COMMENTS ON A FEW OF THE RESULTS PARTICIPANTS SENT</em></p></div></aside></section><section id="in_this_unit_you_will_learn"><h2>In This Unit: You Will Learn</h2><div class="ulist"><ul><li><p>How to combine CloudBees Pipeline plugin with Docker</p></li><li><p>How to implement most commonly used steps required for CI/CD flow</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p>Today, we&#8217;ll start working on a project that combined CloudBees Jenkins Pipeline Plugin with Docker. The idea behind today&#8217;s and tomorrow&#8217;s sessions is to learn basics about Jenkins Pipeline and Docker Pipeline plugins combined.</p></div>
+<div class="paragraph"><p>Learn how to combine CloudBees Pipeline plugin with Docker:</p></div>
+<div class="paragraph"><p>We&#8217;ll put the Docker commands we learned in use to perform operations like building, pushing, pulling, running, and so on. We&#8217;ll do all that, and more, through the Pipeline plugin.</p></div></aside></section><section id="in_this_unit_you_will_be_able_to"><h2>In This Unit: You Will Be Able To</h2><div class="ulist"><ul><li><p>Create deployment lifecycle with Jenkins Pipeline and Docker</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p>Create deployment lifecycle with Jenkins Pipeline and Docker</p></div>
+<div class="paragraph"><p>We&#8217;ll combine Jenkins Pipeline and Docker to produce an effective and easy to maintain solution for the full continuous deployment lifecycle.</p></div>
+<div class="paragraph"><p>Let&#8217;s to through the steps we&#8217;ll perform as part of the deployment pipeline.</p></div></aside></section><section id="the_project"><h2>The Project</h2><div class="ulist"><ul><li><p>Run pre-deployment tests inside a Docker container</p></li><li><p>Build artefacts</p></li><li><p>Build and push the service container</p></li><li><p>Request manual permission to deploy the service container to production</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p><strong>Run pre-deployment tests inside a Docker container:</strong></p></div>
+<div class="paragraph"><p>Run pre-deployment tests inside a Docker container. We&#8217;ll see how we can utilise the combination of the Jenkins Pipeline with Docker to run all kinds of tests. We&#8217;ll run front-end unit tests against Firefox and back-end functional tests that depends on MongoDB. We&#8217;ll call them pre-deployment tests.</p></div>
+<div class="paragraph"><p><strong>Build artefacts:</strong></p></div>
+<div class="paragraph"><p>Once our pre-deployment tests are successful, we&#8217;ll run the process that will build a JAR artefact and prepare front-end static files for packaging.</p></div>
+<div class="paragraph"><p><strong>Build and push the service container:</strong></p></div>
+<div class="paragraph"><p>With the artefacts ready, we&#8217;ll proceed, and build the container image that will host our service. Once built, we&#8217;ll push it to the private registry so that it is available for anyone with the access to our server.</p></div>
+<div class="paragraph"><p><strong>Request manual permission to deploy the service container to production:</strong></p></div>
+<div class="paragraph"><p>Next, we&#8217;ll add a process that will require a manual confirmation before the container is deployed to production.</p></div></aside></section><section id="the_project_cont"><h2>The Project (cont.)</h2><div class="ulist"><ul><li><p>Pull the service container and all dependent containers to production</p></li><li><p>Run the service container and all dependent containers in production</p></li><li><p>Run post-deployment tests (integration tests) inside a Docker container</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p><strong>Pull the service container and all dependent containers to production:</strong></p></div>
+<div class="paragraph"><p>Once we receive the confirmation, we&#8217;ll switch to the production server and pull the latest release from the registry</p></div>
+<div class="paragraph"><p><strong>Run the service container and all dependent containers in production:</strong></p></div>
+<div class="paragraph"><p>With the latest released pulled, we&#8217;ll proceed and run the service container as well as those it depends on.</p></div>
+<div class="paragraph"><p><strong>Run post-deployment tests (integration tests) inside a Docker container:</strong></p></div>
+<div class="paragraph"><p>Finally, we&#8217;ll run another round of tests to confirm that the process was indeed executed correctly. We&#8217;ll call them post-deployment or integration tests.</p></div>
+<div class="paragraph"><p>How does that sound for a project? Shall we give it a try?</p></div></aside></section><section id="reality_check"><h2>Reality Check</h2><div class="ulist"><ul><li><p>Questions on the preparation and the project?</p></li><li><p>Does this workflow differ from your practices?</p></li><li><p>Using containers now?</p></li></ul></div></section><section id="create_a_pipeline_job_called_my_pipeline"><h2>Create a Pipeline Job Called my-pipeline</h2><div class="imageblock" style=""><div class="content"><img src="./images/cje-create-my-pipeline.png" alt="cje create my pipeline" width="800"></div></div>
+<aside class="notes"><div class="paragraph"><p>A new Pipeline job can be created by clicking the "New Item" link from the left-hand menu, typing a name of the job, selecting "Pipeline" as type and clicking the "OK" button. For this exercise, please use "my-pipeline" as the job name.</p></div></aside></section><section id="key_pipeline_dsl_node_task"><h2>Key Pipeline DSL – node: Task</h2><div class="paragraph"><p>Specify the node <em>cd</em>, run the pipeline, and confirm that it is running inside the <em>cd</em> node by looking at logs.</p></div>
+<aside class="notes"><div class="paragraph"><p>A node is a step that schedules a task to run by adding it to the Jenkins build queue. As soon as an executor slot is available on a node (the Jenkins master, or a slave), the task is run on that node. A node also allocates a workspace (file directory) on that node for the duration of the task (more on this later). The argument inside brackets can be used to define the name of the node or label. In this case, the code inside this node will run only on those named or with the label "cd".</p></div>
+<div class="paragraph"><p>To see all the available arguments, please click the "Snippet Generator" checkbox and select the "node" step. To generate the Groovy code, please write "cd" in the "Label" field and click the "Generate Groovy" button. Generated code can be copy&amp;pasted into the "Script" text box. Same process should be followed for the rest of exercises.</p></div></aside></section><section id="key_pipeline_dsl_node_solution"><h2>Key Pipeline DSL – node: Solution</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="groovy language-groovy">node("cd") {
+}</code></pre></div></div></section><section id="run_the_job"><h2>Run the Job</h2><div class="paragraph"><p>Open http://<strong>&lt;IP&gt;</strong>:8080/job/my-pipeline/build?delay=0sec</p></div>
+<div class="paragraph"><p>Open http://<strong>&lt;IP&gt;</strong>:8080/job/my-pipeline/lastBuild/console</p></div>
+<div class="imageblock" style=""><div class="content"><img src="./images/cje-workflow-console.png" alt="cje workflow console" width="800"></div></div>
+<aside class="notes"><div class="paragraph"><p>Pipeline jobs are run as any other type of Jenkins jobs. Click the "Build Now" link in the left-hand menu when inside the job screen or open the first URL presented on the screen. Let&#8217;s take a look at the console output of the build (the second URL). Not much happened since we haven&#8217;t specified any instruction to be run inside the node. The important thing to note is that we can see from the output that the job was run inside the "node-cd" node. The node is configured with the"cd" label.</p></div></aside></section><section id="key_pipeline_dsl_git_task"><h2>Key Pipeline DSL – git: Task</h2><div class="paragraph"><p>Clone the code from the repository <em><a href="https://github.com/cloudbees/training-books-ms.git" class="bare">https://github.com/cloudbees/training-books-ms.git</a></em></p></div>
+<aside class="notes"><div class="paragraph"><p>Git step:</p></div>
+<div class="paragraph"><p>It performs a clone from the specified repository. We&#8217;ll use it to get the latest code from the Git repository cloudbees/training-books-ms. Please note that the git step is intelligent enough to know whether the code should be cloned or pulled from the repository.</p></div></aside></section><section id="key_pipeline_dsl_git_solution"><h2>Key Pipeline DSL – git: Solution</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="groovy language-groovy">    git "https://github.com/cloudbees/training-books-ms.git"</code></pre></div></div></section><section id="key_pipeline_dsl_variables_pwd_and_sh_task"><h2>Key Pipeline DSL – variables, pwd and sh: Task</h2><div class="paragraph"><p>Assign the current job workspace directory to the <em>dir</em> variable, create directory <em>db</em> inside the workspace, and assign full permissions to all users.</p></div>
+<aside class="notes"><div class="paragraph"><p>Variables have the same function as in any other programming or scripting language. In addition, all job parameters are available as Pipeline variables. Inside a string, variable values can be obtained using the same syntax as in bash scripts by prefixing them with the dollar sign. Curly braces are optional.
+The "pwd" function returns the current directory path as a string.
+The "sh" runs a Bourne shell script on a Unix node. Multiple lines are accepted. An interpreter selector may be used, for example: "#!/usr/bin/perl". We can use it to create the directory by running "mkdir" and assign permissions with "chmod".</p></div></aside></section><section id="key_pipeline_dsl_variables_pwd_and_sh_solution"><h2>Key Pipeline DSL – variables, pwd and sh: Solution</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="groovy language-groovy">    def dir = pwd()
+    sh "mkdir -p ${dir}/db"
+    sh "chmod 0777 ${dir}/db"</code></pre></div></div></section><section id="key_pipeline_dsl_stage_task"><h2>Key Pipeline DSL – stage: Task</h2><div class="paragraph"><p>Create the <em>pre-deployment tests</em> stage.</p></div>
+<aside class="notes"><div class="paragraph"><p>By default, flow builds can run concurrently. The stage command lets you mark certain sections of a build as being constrained by limited concurrency. Newer builds are always given priority when entering such a throttled stage; older builds will simply exit early if they are preempted. Stage is also used inside the "Stage View" as a way to separate the flow into groups.</p></div></aside></section><section id="key_pipeline_dsl_stage_solution"><h2>Key Pipeline DSL – stage: Solution</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="groovy language-groovy">    stage "pre-deployment tests"</code></pre></div></div></section><section id="mid_break"><h2>Mid-Break</h2><div class="paragraph"><p>(10) minutes for learner re-integration.</p></div>
+<div class="imageblock" style=""><div class="content"><img src="./images/break.png" alt="break" width="300"></div></div></section><section id="key_pipeline_dsl_docker_task"><h2>Key Pipeline DSL – docker: Task</h2><div class="paragraph"><p>Pull the Docker image <em>localhost:5000/books-ms-tests</em> and run the <em>run_tests.sh</em> script inside the container.  Host volume <em>db</em> should be mounted as <em>/data/db</em> inside the container.</p></div>
+<aside class="notes"><div class="paragraph"><p>Docker image we want to work with can be specified with <code>docker.image('FULL_IMAGE_NAME')</code>. It will return a reference that can be stored as a variable. Images can be pulled from Registry using ".pull()". Use ".inside" to run instructions inside a container. The "inside" function accepts arguments that will be passed to Docker. For example, we can specify volume like <code>-v HOST_VOLUME_PATH:DOCKER_VOLUME_PATH</code>.</p></div></aside></section><section id="key_pipeline_dsl_docker_solution"><h2>Key Pipeline DSL – docker: Solution</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="groovy language-groovy">    def tests = docker.image("localhost:5000/training-books-ms-tests")
+    tests.pull()
+    tests.inside("-v ${dir}/db:/data/db") {
+        sh "./run_tests.sh"
+    }</code></pre></div></div></section><section id="key_pipeline_dsl_docker_task_2"><h2>Key Pipeline DSL – docker: Task</h2><div class="paragraph"><p>Build the Docker image <em>localhost:5000/books-ms</em> and push the container to the private registry. Use the stage <em>build</em> for these steps.</p></div>
+<aside class="notes"><div class="paragraph"><p>Building an image can be done with ".build" followed by the image name. The result can be assigned to a variable. Similarly, image can be pushed through ".push()".</p></div></aside></section><section id="key_pipeline_dsl_docker_solution_2"><h2>Key Pipeline DSL – docker: Solution</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="groovy language-groovy">    stage "build"
+    def service = docker.build "localhost:5000/training-books-ms"
+    service.push()</code></pre></div></div></section><section id="key_pipeline_dsl_stash_and_unstash_task"><h2>Key Pipeline DSL – stash and unstash: Task</h2><div class="paragraph"><p>Pull containers and run (through Docker Compose target <em>app</em>) the <em>localhost:5000/books-ms</em> container in the <em>production</em> node. Use <em>stash</em> to archive <em>docker-compose-dev.yml</em> file while in the <em>cd</em> node and <em>unstash</em> to retrieve it when inside the <em>production</em> node. Before running the service, make sure that both the service and mongo containers are pulled.</p></div>
+<aside class="notes"><div class="paragraph"><p>If multiple nodes are used inside the same Pipeline, in some cases there is the need to move files from one to another. The "stash" instructions stores some files to be used later in the build. Its counterpart is "unstash" that restores stashed files.</p></div></aside></section><section id="key_pipeline_dsl_stash_and_unstash_solution"><h2>Key Pipeline DSL – stash and unstash: Solution</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="groovy language-groovy">node("cd") {
+...
+    stash includes: "docker-compose*.yml", name: "docker-compose"
+}
+node("production") {
+    stage "deploy"
+    unstash "docker-compose"
+    docker.image("localhost:5000/training-books-ms").pull()
+    docker.image("mongo").pull()
+    sh "docker-compose -p books-ms up -d app"
+}</code></pre></div></div></section><section id="key_pipeline_dsl_env_and_withenv_task"><h2>Key Pipeline DSL – env and withEnv: Task</h2><div class="paragraph"><p>Run post-deployment tests in the node <em>cd</em>. The <em>run_tests.sh</em> script expects two environment variables: <em>TEST_TYPE=integ</em> and <em>DOMAIN=<strong>&lt;IP&gt;</strong>:8081</em>. Tests should be run inside the <em>training-books-ms</em> container.</p></div>
+<aside class="notes"><div class="paragraph"><p>Environment variables can be assigned or retrieved using the "env" instruction. The "withEnv" instruction sets one or more environment variables within a block. It is a very useful feature that allows us to limit the scope of environment variables. Please note that [IP] should be replaced with the IP of your AWS instance.</p></div></aside></section><section id="key_pipeline_dsl_env_and_withenv_solution"><h2>Key Pipeline DSL – env and withEnv: Solution</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="groovy language-groovy">node("cd") {
+    stage "post-deployment tests"
+    def tests = docker.image("localhost:5000/training-books-ms-tests")
+    tests.inside() {
+        withEnv(["TEST_TYPE=integ", "DOMAIN=http://[IP]:8081"]) {
+            sh "./run_tests.sh"
+        }
+    }
+}</code></pre></div></div></section><section id="the_project_part_1_review"><h2>The Project - Part 1: Review</h2></section><section id="the_project_part_1_review_2"><h2>The Project - Part 1: Review</h2><div class="ulist"><ul><li><p>Defined the project steps</p></li><li><p>Created a new Pipeline job</p></li><li><p>Defined steps that clone the code</p></li><li><p>Defined steps that run pre-deployment tests</p></li><li><p>Defined steps that build and push the container</p></li><li><p>Defined steps that deploy the container</p></li><li><p>Defined steps that run post-deployment tests</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p><strong>Defined the project steps:</strong></p></div>
+<div class="paragraph"><p>We defined the steps that will constitute out project. In a nutshell, the project will perform all the phases of the deployment flow, starting from testing and building, all the way until the service is deployed and integrated in production.</p></div>
+<div class="paragraph"><p><strong>Created a new Pipeline job:</strong></p></div>
+<div class="paragraph"><p>We created a new Jenkins Pipeline job that will be used to perform all the steps we defined.</p></div>
+<div class="paragraph"><p><strong>Defined Pipeline steps:</strong></p></div>
+<div class="paragraph"><p>We started by specifying the node our pipeline will run in, made sure that the code is retrieved from the repository, defined few variables, created a directory and set proper permissions through the sh step, and set the pre-deployment tests stage. As part of the stage, we pulled the latest container with the tests, entered it and run part of the tests suite. From there on, we built a new container with the latest release of the service and pushed it to the private registry. We had to use stash and unstash steps to move few files into the production server and defined the steps that form our deploy stage. Once inside the production server, we pulled the service container together with the MongoDB and used Docker Compose to run both of them. Finally, we run post-deployment tests that proved that the release was successfully deployed and integrated.</p></div></aside></section><section id="the_project_part_1_exercise"><h2>The Project - Part 1: Exercise</h2><div class="paragraph"><p><a href="labs.html#_the_project_part_1_exercise">The Project - Part 1: Exercise</a></p></div></section></section></div></div><script src="reveal.js/lib/js/head.min.js"></script><script src="reveal.js/js/reveal.js"></script><script>// See https://github.com/hakimel/reveal.js#configuration for a full list of configuration options
+Reveal.initialize({
+  // Display controls in the bottom right corner
+  controls: true,
+  // Display a presentation progress bar
+  progress: true,
+  // Display the page number of the current slide
+  slideNumber: true,
+  // Push each slide change to the browser history
+  history: true,
+  // Enable keyboard shortcuts for navigation
+  keyboard: true,
+  // Enable the slide overview mode
+  overview: true,
+  // Vertical centering of slides
+  center: true,
+  // Enables touch navigation on devices with touch input
+  touch: true,
+  // Loop the presentation
+  loop: false,
+  // Change the presentation direction to be RTL
+  rtl: false,
+  // Turns fragments on and off globally
+  fragments: true,
+  // Flags if the presentation is running in an embedded mode,
+  // i.e. contained within a limited portion of the screen
+  embedded: false,
+  // Number of milliseconds between automatically proceeding to the
+  // next slide, disabled when set to 0, this value can be overwritten
+  // by using a data-autoslide attribute on your slides
+  autoSlide: 0,
+  // Stop auto-sliding after user input
+  autoSlideStoppable: true,
+  // Enable slide navigation via mouse wheel
+  mouseWheel: false,
+  // Hides the address bar on mobile devices
+  hideAddressBar: true,
+  // Opens links in an iframe preview overlay
+  previewLinks: false,
+  // Theme (e.g., beige, black, league, night, serif, simple, sky, solarized, white)
+  // NOTE setting the theme in the config no longer works in reveal.js 3.x
+  //theme: Reveal.getQueryHash().theme || 'black',
+  // Transition style (e.g., none, fade, slide, convex, concave, zoom)
+  transition: Reveal.getQueryHash().transition || 'slide',
+  // Transition speed (e.g., default, fast, slow)
+  transitionSpeed: 'default',
+  // Transition style for full page slide backgrounds (e.g., none, fade, slide, convex, concave, zoom)
+  backgroundTransition: 'fade',
+  // Number of slides away from the current that are visible
+  viewDistance: 3,
+  // Parallax background image (e.g., "'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg'")
+  parallaxBackgroundImage: '',
+  // Parallax background size in CSS syntax (e.g., "2100px 900px")
+  parallaxBackgroundSize: '',
+
+  // The "normal" size of the presentation, aspect ratio will be preserved
+  // when the presentation is scaled to fit different resolutions. Can be
+  // specified using percentage units.
+  width: 1280,
+  height: 800,
+
+  // Factor of the display size that should remain empty around the content
+  margin: 0.1,
+
+  // Bounds for smallest/largest possible scale to apply to content
+  minScale: 0.2,
+  maxScale: 1.5,
+
+  // Optional libraries used to extend on reveal.js
+  dependencies: [
+      { src: 'reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+      { src: 'reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+      { src: 'reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      { src: 'reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+  ]
+});</script><div id="cloudbees-ruban">
+  <img id="cloudbees-logo" src="images/cloudbees_university.svg" alt="CloudBees University Logo"/>
+
+  <span id="presentation-title">CloudBees Jenkins Platform</span>
+
+  <a id="linkToToc" href="#toc"><img src="images/toc-icon.png" alt="ToC Icon" /></a>
+
+  <span id="cloudbees-copyright " class="copyright">© 2016 CloudBees, Inc.  All Rights Reserved</span>
+</div>
+
+<div id="watermark">
+  <p id="watermark-text">© 2016 CloudBees, Inc.  All Rights Reserved</p>
+</div></body></html>

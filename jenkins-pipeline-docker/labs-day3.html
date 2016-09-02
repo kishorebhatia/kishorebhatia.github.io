@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.4">
+<title>CloudBees Jenkins Platform: Pipeline with Docker: Labs</title>
+<link rel="stylesheet" href="./build/labs.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>CloudBees Jenkins Platform: Pipeline with Docker: Labs</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_introduction">Introduction</a></li>
+<li><a href="#_the_project_part_1_exercise">The Project - Part 1: Exercise</a>
+<ul class="sectlevel2">
+<li><a href="#_task_create_a_new_pipeline_job">Task: Create a new Pipeline job</a></li>
+<li><a href="#_task_clone_the_code_from_the_github_repository">Task: Clone the code from the GitHub repository</a></li>
+<li><a href="#_task_run_the_tests_and_build_the_binary">Task: Run the tests and build the binary</a></li>
+<li><a href="#_task_build_the_image_and_push_it_to_the_local_registry">Task: Build the image and push it to the local registry</a></li>
+<li><a href="#_task_archive_the_binary">Task: Archive the binary</a></li>
+<li><a href="#_task_run_latest_version_of_the_container">Task: Run latest version of the container</a></li>
+<li><a href="#_solution_create_a_new_pipeline_job">Solution: Create a new Pipeline job</a></li>
+<li><a href="#_solution_clone_the_code_from_the_github_repository">Solution: Clone the code from the GitHub repository</a></li>
+<li><a href="#_solution_run_the_tests_and_build_the_binary">Solution: Run the tests and build the binary</a></li>
+<li><a href="#_solution_build_the_image_and_push_it_to_the_local_registry">Solution: Build the image and push it to the local registry</a></li>
+<li><a href="#_solution_archive_the_binary">Solution: Archive the binary</a></li>
+<li><a href="#_solution_run_latest_version_of_the_container">Solution: Run latest version of the container</a></li>
+<li><a href="#_solution_the_complete_pipeline_script">Solution: The complete Pipeline script</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_introduction"><a class="anchor" href="#_introduction"></a>Introduction</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This workbook is designed to supplement your CloudBees Jenkins training.
+It consists of a sequence of lab exercises that will introduce
+Jenkins Pipeline and Docker concepts and best practices.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_project_part_1_exercise"><a class="anchor" href="#_the_project_part_1_exercise"></a>The Project - Part 1: Exercise</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The solution to all tasks is located at the end. Please try to solve them by yourself and look at the solutions only if you get stuck or want to validate your work.</p>
+</div>
+<div class="paragraph">
+<p>The exercise consists of performing the whole delivery lifecycle of an application using Jenkins Pipeline and Docker. We&#8217;ll test the application, and build and push a Docker container. The service we&#8217;ll use is written in Go. Since this training is language-agnostic, you are not expected to know the language. You will not need any additional tools. All the tasks should be completed with Docker.</p>
+</div>
+<div class="paragraph">
+<p>Before diving into the exercise, please SSH into the machine you are assigned and enter the <em>/mnt/training-books-ms/exercises</em> directory. All the code you&#8217;ll need is inside.</p>
+</div>
+<div class="sect2">
+<h3 id="_task_create_a_new_pipeline_job"><a class="anchor" href="#_task_create_a_new_pipeline_job"></a>Task: Create a new Pipeline job</h3>
+<div class="paragraph">
+<p>The requirements for this task are as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Create a new <strong>Pipeline</strong> job called <strong>docker-flow-proxy</strong>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For additional information, please consult <a href="https://github.com/jenkinsci/pipeline-plugin/blob/master/TUTORIAL.md">Getting Started</a> tutorial.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_task_clone_the_code_from_the_github_repository"><a class="anchor" href="#_task_clone_the_code_from_the_github_repository"></a>Task: Clone the code from the GitHub repository</h3>
+<div class="paragraph">
+<p>The requirements for this task are as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Everything should run inside the node called <strong>cd</strong>.</p>
+</li>
+<li>
+<p>Clone of <strong>pipeline</strong> branch of the <strong><a href="https://github.com/cloudbees/training-books-ms" class="bare">https://github.com/cloudbees/training-books-ms</a></strong> repository.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For additional information, please consult <a href="https://jenkins.io/doc/pipeline/steps/workflow-support/#code-node-code-allocate-node">node</a> and <a href="https://jenkins.io/doc/pipeline/steps/workflow-scm-step/#code-git-code-git">git</a> documentation.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_task_run_the_tests_and_build_the_binary"><a class="anchor" href="#_task_run_the_tests_and_build_the_binary"></a>Task: Run the tests and build the binary</h3>
+<div class="paragraph">
+<p>The requirements for this task are as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Everything should run inside the node called <strong>cd</strong>.</p>
+</li>
+<li>
+<p>Define the stage called <strong>test</strong>.</p>
+</li>
+<li>
+<p>Run the tests and build the binary inside the <strong>golang</strong> container.</p>
+</li>
+<li>
+<p>Set user and group to <strong>0</strong>.</p>
+</li>
+<li>
+<p>Run the following commands inside the container.</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash" data-lang="bash">ln -s $PWD /go/src/docker-flow
+cd /go/src/docker-flow &amp;&amp; go get -t &amp;&amp; go test --cover -v
+cd /go/src/docker-flow &amp;&amp; go build -v -o docker-flow-proxy</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For additional information, please consult <a href="https://jenkins.io/doc/pipeline/steps/docker-workflow/#code-withdockercontainer-code-run-build-steps-inside-a-docker-container">withDockerContainer</a> and <a href="https://jenkins.io/doc/pipeline/steps/workflow-support/#code-stage-code-stage">stage</a> documentation.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_task_build_the_image_and_push_it_to_the_local_registry"><a class="anchor" href="#_task_build_the_image_and_push_it_to_the_local_registry"></a>Task: Build the image and push it to the local registry</h3>
+<div class="paragraph">
+<p>The requirements for this task are as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Everything should run inside the node called <strong>cd</strong>.</p>
+</li>
+<li>
+<p>Define the stage called <strong>build</strong>.</p>
+</li>
+<li>
+<p>Build the container called <strong>localhost:5000/docker-flow-proxy</strong>.</p>
+</li>
+<li>
+<p>Build the container called <strong>localhost:5000/docker-flow-proxy</strong>.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_task_archive_the_binary"><a class="anchor" href="#_task_archive_the_binary"></a>Task: Archive the binary</h3>
+<div class="paragraph">
+<p>The requirements for this task are as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Everything should run inside the node called <strong>cd</strong>.</p>
+</li>
+<li>
+<p>Archive the binary <strong>docker-flow-proxy</strong>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For additional information, please consult <a href="https://jenkins.io/doc/pipeline/steps/workflow-basic-steps/#code-archive-code-archive-artifacts">archive</a> documentation.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_task_run_latest_version_of_the_container"><a class="anchor" href="#_task_run_latest_version_of_the_container"></a>Task: Run latest version of the container</h3>
+<div class="paragraph">
+<p>The requirements for this task are as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Define the checkpoint called <strong>deploy</strong></p>
+</li>
+<li>
+<p>Everything should run inside the node called <strong>production</strong>.</p>
+</li>
+<li>
+<p>Define the stage called <strong>deploy</strong>.</p>
+</li>
+<li>
+<p>Delete the container called <strong>docker-flow-proxy</strong>. Make sure that the pipeline does not fail if the container is not running.</p>
+</li>
+<li>
+<p>Run the <strong>localhost:5000/docker-flow-proxy</strong> container.</p>
+</li>
+<li>
+<p>The name of the container should be <strong>docker-flow-proxy</strong>.</p>
+</li>
+<li>
+<p>The internal port <strong>80</strong> should be exposed to the host as <strong>8081</strong>.</p>
+</li>
+<li>
+<p>The internal port <strong>8080</strong> should be exposed to the host as <strong>8082</strong>.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_solution_create_a_new_pipeline_job"><a class="anchor" href="#_solution_create_a_new_pipeline_job"></a>Solution: Create a new Pipeline job</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Open the Jenkins UI.</p>
+</li>
+<li>
+<p>Click the <strong>New Item</strong> link from the left-hand menu.</p>
+</li>
+<li>
+<p>Type <strong>docker-flow-proxy</strong> in the <strong>Item Name</strong> field, select the <strong>Pipeline</strong> job type, and click the <strong>OK</strong> button.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_solution_clone_the_code_from_the_github_repository"><a class="anchor" href="#_solution_clone_the_code_from_the_github_repository"></a>Solution: Clone the code from the GitHub repository</h3>
+<div class="paragraph">
+<p>Write the following script inside the <strong>Pipeline Script</strong> field.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy" data-lang="groovy">node("cd") {
+    git branch: 'pipeline', url: 'https://github.com/cloudbees/training-books-ms'
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The explanation of the snippet is as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The steps executed inside the <code>node</code> block will run in one of the slaves named or labeled <strong>cd</strong>.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_solution_run_the_tests_and_build_the_binary"><a class="anchor" href="#_solution_run_the_tests_and_build_the_binary"></a>Solution: Run the tests and build the binary</h3>
+<div class="paragraph">
+<p>Add the following snippet below the <code>git</code> instruction inside the <strong>Pipeline Script</strong> field.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-groovy" data-lang="groovy">    stage 'test'
+    docker.image("golang").inside('-u 0:0') {
+        sh 'ln -s $PWD /go/src/docker-flow'
+        sh 'cd /go/src/docker-flow &amp;&amp; go get -t &amp;&amp; go test --cover -v'
+        sh 'cd /go/src/docker-flow &amp;&amp; go build -v -o docker-flow-proxy'
+    }</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The explanation of the snippet is as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The <code>stage</code> instruction defines a group of steps.</p>
+</li>
+<li>
+<p>The <code>docker.image</code> instruction specifies the name of the image that will be used.</p>
+</li>
+<li>
+<p>The arguments set for the <code>inside</code> function will be passed as Docker <code>run</code> arguments.</p>
+</li>
+<li>
+<p>The steps executed inside the <code>docker.image.inside</code> block will run inside the specified container.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_solution_build_the_image_and_push_it_to_the_local_registry"><a class="anchor" href="#_solution_build_the_image_and_push_it_to_the_local_registry"></a>Solution: Build the image and push it to the local registry</h3>
+<div class="paragraph">
+<p>Add the following snippet below the <code>docker.image("golang").inside('-u 0:0')</code> block inside the <strong>Pipeline Script</strong> field.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash" data-lang="bash">    stage 'build'
+    docker.build('localhost:5000/docker-flow-proxy')
+    docker.image('localhost:5000/docker-flow-proxy').push()</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The explanation of the snippet is as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The <code>stage</code> instruction defines a group of steps.</p>
+</li>
+<li>
+<p>The <code>docker.build</code> instruction builds the image called <code>localhost:5000/docker-flow-proxy</code>. The name itself follows the <strong>&lt;REGISTRY&gt;/&lt;IMAGE_NAME&gt;</strong> format.</p>
+</li>
+<li>
+<p>The <code>docker.image</code> instruction returns <strong>Container</strong>. The <code>push</code> command is given to the container <strong>localhost:5000/docker-flow-proxy</strong>.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_solution_archive_the_binary"><a class="anchor" href="#_solution_archive_the_binary"></a>Solution: Archive the binary</h3>
+<div class="paragraph">
+<p>Add the following snippet below the <code>docker.image('localhost:5000/docker-flow-proxy').push()</code> instruction inside the <strong>Pipeline Script</strong> field.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash" data-lang="bash">    archive 'docker-flow-proxy'</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The explanation of the snippet is as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The <code>archive</code> instruction stores all the files that match the specified pattern.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_solution_run_latest_version_of_the_container"><a class="anchor" href="#_solution_run_latest_version_of_the_container"></a>Solution: Run latest version of the container</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash" data-lang="bash">checkpoint 'deploy'
+
+node('production') {
+    stage 'deploy'
+    try {
+        sh 'docker rm -f docker-flow-proxy'
+    } catch(e) { }
+    docker.image('localhost:5000/docker-flow-proxy').run('--name docker-flow-proxy -p 8081:80 -p 8082:8080')
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The explanation of the snippet is as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>In case of a system failure, the <code>checkpoint</code> instruction allows restart of the job from that point.</p>
+</li>
+<li>
+<p>The steps executed inside the <code>node</code> block will run in one of the slaves named or labeled <strong>production</strong>.</p>
+</li>
+<li>
+<p>The <code>sh</code> step is used to run the Docker <code>rm</code> command that removes the container. To prevent possible failure in case such a container does not exist, the step is wrapped inside an <code>try/catch</code> statement.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_solution_the_complete_pipeline_script"><a class="anchor" href="#_solution_the_complete_pipeline_script"></a>Solution: The complete Pipeline script</h3>
+<div class="paragraph">
+<p>The complete script is listed below.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash" data-lang="bash">node("cd") {
+    git branch: 'pipeline', url: 'https://github.com/cloudbees/training-books-ms'
+
+    stage 'test'
+    docker.image("golang").inside('-u 0:0') {
+        sh 'ln -s $PWD /go/src/docker-flow'
+        sh 'cd /go/src/docker-flow &amp;&amp; go get -t &amp;&amp; go test --cover -v'
+        sh 'cd /go/src/docker-flow &amp;&amp; go build -v -o docker-flow-proxy'
+    }
+
+    stage 'build'
+    docker.build('localhost:5000/docker-flow-proxy')
+    docker.image('localhost:5000/docker-flow-proxy').push()
+    archive 'docker-flow-proxy'
+}
+
+checkpoint 'deploy'
+
+node('production') {
+    stage 'deploy'
+    try {
+        sh 'docker rm -f docker-flow-proxy'
+    } catch(e) { }
+    docker.image('localhost:5000/docker-flow-proxy').run('--name docker-flow-proxy -p 8081:80 -p 8082:8080')
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><a href="slides-03.html">Go back to slides</a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2016-06-23 10:37:24 UTC
+</div>
+</div>
+
+<div id="ribbonHeader">CloudBees Jenkins Platform: Pipeline with Docker: Labs</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/highlight.min.js"></script>
+<script>hljs.initHighlighting()</script>
+</body>
+</html>

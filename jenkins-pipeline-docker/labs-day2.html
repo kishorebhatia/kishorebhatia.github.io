@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.4">
+<title>CloudBees Jenkins Platform: Pipeline with Docker: Labs</title>
+<link rel="stylesheet" href="./build/labs.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>CloudBees Jenkins Platform: Pipeline with Docker: Labs</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_introduction">Introduction</a></li>
+<li><a href="#_docker_introduction_exercise">Docker Introduction Exercise</a>
+<ul class="sectlevel2">
+<li><a href="#_task_test_the_code">Task: Test the code</a></li>
+<li><a href="#_task_build_the_binary">Task: Build the binary</a></li>
+<li><a href="#_task_create_dockerfile_that_defines_the_docker_image">Task: Create Dockerfile that defines the Docker image</a></li>
+<li><a href="#_task_build_the_image_and_push_it_to_the_local_registry">Task: Build the image and push it to the local registry</a></li>
+<li><a href="#_task_run_latest_version_of_the_container">Task: Run latest version of the container</a></li>
+<li><a href="#_solution_test_the_code">Solution: Test the code</a></li>
+<li><a href="#_solution_build_the_binary">Solution: Build the binary</a></li>
+<li><a href="#_solution_create_dockerfile_that_defines_the_docker_image">Solution: Create Dockerfile that defines the Docker image</a></li>
+<li><a href="#_solution_build_the_image_and_push_it_to_the_local_registry">Solution: Build the image and push it to the local registry</a></li>
+<li><a href="#_solution_run_latest_version_of_the_container">Solution: Run latest version of the container</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_introduction"><a class="anchor" href="#_introduction"></a>Introduction</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This workbook is designed to supplement your CloudBees Jenkins training.
+It consists of a sequence of lab exercises that will introduce
+Jenkins Pipeline and Docker concepts and best practices.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_docker_introduction_exercise"><a class="anchor" href="#_docker_introduction_exercise"></a>Docker Introduction Exercise</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>To reinforce today’s material we have an exercise for you.</p>
+</div>
+<div class="paragraph">
+<p>Before our next session, please create a simple pipeline using the knowledge you obtained so far. Start by creating a new Pipeline job and explore the available steps through the Snippet Generator. Once you are familiar with the steps, create a simple pipeline from one of the projects you&#8217;ve been working with. Feel free to use the environment we set up earlier. Please note that only JDK and Git are installed. If you need some other tool (Maven, Gradle, NodeJS, and so on), you should first make sure that they are properly set up. As a alternative, you can do this exercise on your own Jenkins instance. In case you opt for this option, please note that the CloudBees Pipeline plugin needs to be installed. If, no the other hand, you are already using the CloudBees Jenkins Enterprise Edition, the plugin is already installed and you can start using it right away.</p>
+</div>
+<div class="paragraph">
+<p>The solution to all tasks is located at the end. Please try to solve them by yourself and look at the solutions only if you get stuck or want to validate your work.</p>
+</div>
+<div class="paragraph">
+<p>The exercise consists of performing the whole delivery lifecycle of an application using only Docker. We&#8217;ll test the application, and build and push a Docker container. The service we&#8217;ll use is written in Go. Since this training is language-agnostic, you are not expected to know the language. You will not need any additional tools. All the tasks should be completed with Docker.</p>
+</div>
+<div class="paragraph">
+<p>Before diving into the exercise, please SSH into the machine you are assigned and enter the <em>/mnt/training-books-ms/exercises</em> directory. All the code you&#8217;ll need is inside.</p>
+</div>
+<div class="sect2">
+<h3 id="_task_test_the_code"><a class="anchor" href="#_task_test_the_code"></a>Task: Test the code</h3>
+<div class="paragraph">
+<p>The command to test the code is as follows.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash" data-lang="bash">sh -c "go get -t &amp;&amp; go test --cover -v"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Since Go is not installed on the server, you should use the <a href="https://hub.docker.com/_/golang/">golang</a> image available in the Docker Hub.</p>
+</div>
+<div class="paragraph">
+<p>The requirements for this task are as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Remove the container after the execution of the tests is finished</p>
+</li>
+<li>
+<p>The current host directory should be mounted as the <strong>/go/src/docker-flow</strong> volume.</p>
+</li>
+<li>
+<p>The <strong>/go/src/docker-flow</strong> inside the container should be the working directory.</p>
+</li>
+<li>
+<p>Run the above mentioned command</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For additional information, please consult <a href="https://docs.docker.com/engine/reference/commandline/run/">Docker Run</a> documentation.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_task_build_the_binary"><a class="anchor" href="#_task_build_the_binary"></a>Task: Build the binary</h3>
+<div class="paragraph">
+<p>The command to build the binary is as follows.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash" data-lang="bash">sh -c "go get &amp;&amp; go build -v -o docker-flow-proxy"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The requirements for this task are as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Remove the container after the execution of the tests is finished</p>
+</li>
+<li>
+<p>The current host directory should be mounted as the <strong>/go/src/docker-flow</strong> volume.</p>
+</li>
+<li>
+<p>The <strong>/go/src/docker-flow</strong> inside the container should be working directory.</p>
+</li>
+<li>
+<p>Run the above mentioned command</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For additional information, please consult <a href="https://docs.docker.com/engine/reference/commandline/run/">Docker Run</a> documentation.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_task_create_dockerfile_that_defines_the_docker_image"><a class="anchor" href="#_task_create_dockerfile_that_defines_the_docker_image"></a>Task: Create Dockerfile that defines the Docker image</h3>
+<div class="paragraph">
+<p>The Dockerfile that we&#8217;ll create has the following requirements.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>It should extend the <code>haproxy:1.6-alpine</code> image. Alpine is the smallest base image. Extending it will guarantee that our container is as small as it can be.</p>
+</li>
+<li>
+<p>Define maintainer&#8217;s name and email address.</p>
+</li>
+<li>
+<p>It should download <strong>Consul Template</strong> binary (<strong><a href="https://releases.hashicorp.com/consul-template/0.13.0/consul-template_0.13.0_linux_amd64.zip" class="bare">https://releases.hashicorp.com/consul-template/0.13.0/consul-template_0.13.0_linux_amd64.zip</a></strong>), place it into the <strong>/usr/local/bin/</strong> directory with the name <strong>consul-template</strong>, and make it executable. The following set of Linux commands would accomplish this requirement.</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash" data-lang="bash">apk add --no-cache --virtual .build-deps curl unzip
+
+curl -SL https://releases.hashicorp.com/consul-template/0.13.0/consul-template_0.13.0_linux_amd64.zip -o /usr/local/bin/consul-template.zip
+
+unzip /usr/local/bin/consul-template.zip -d /usr/local/bin/
+
+rm -f /usr/local/bin/consul-template.zip
+
+chmod +x /usr/local/bin/consul-template</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Create a soft link from <strong>/lib/libc.musl-x86_64.so.1</strong> to <strong>/lib64/ld-linux-x86-64.so.2</strong>. The following set of Linux commands would accomplish this requirement.</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash" data-lang="bash">mkdir /lib64
+
+ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Create the directory <strong>/cfg/tmpl</strong>.</p>
+</li>
+<li>
+<p>Copy <strong>haproxy.cfg</strong> to <strong>/cfg/haproxy.cfg</strong>.</p>
+</li>
+<li>
+<p>Copy <strong>haproxy.tmpl</strong> to <strong>/cfg/tmpl/haproxy.tmpl</strong>.</p>
+</li>
+<li>
+<p>Copy <strong>docker-flow-proxy</strong> to <strong>/usr/local/bin/docker-flow-proxy</strong>.</p>
+</li>
+<li>
+<p>Add <strong>execute permissions to */usr/local/bin/docker-flow-proxy</strong>.</p>
+</li>
+<li>
+<p>Define an environment variable <strong>CONSUL_ADDRESS</strong> with an empty string as value.</p>
+</li>
+<li>
+<p>Expose ports <strong>80</strong> and <strong>8080</strong>.</p>
+</li>
+<li>
+<p>Define <code>docker-flow-proxy server</code> as container&#8217;s command.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For additional information, please consult <a href="https://docs.docker.com/engine/reference/builder/">Dockerfile reference</a> documentation.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_task_build_the_image_and_push_it_to_the_local_registry"><a class="anchor" href="#_task_build_the_image_and_push_it_to_the_local_registry"></a>Task: Build the image and push it to the local registry</h3>
+<div class="paragraph">
+<p>The requirements for this task are as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Build the image defined in the <strong>Dockerfile</strong> and name it <strong>localhost:5000/docker-flow-proxy</strong></p>
+</li>
+<li>
+<p>Push the newly built image to the private registry running in <strong>localhost:5000</strong>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For additional information, please consult <a href="https://docs.docker.com/engine/reference/commandline/build/">Docker Build</a>, <a href="https://docs.docker.com/engine/reference/commandline/tag/">Docker Tag</a>, and <a href="https://docs.docker.com/engine/reference/commandline/push/">Docker Push</a> documentation.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_task_run_latest_version_of_the_container"><a class="anchor" href="#_task_run_latest_version_of_the_container"></a>Task: Run latest version of the container</h3>
+<div class="paragraph">
+<p>The requirements for this task are as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>List all the Docker processes.</p>
+</li>
+<li>
+<p>If the container with the same name is already running, remove it.</p>
+</li>
+<li>
+<p>Run the newly built container.</p>
+</li>
+<li>
+<p>The container should run in background.</p>
+</li>
+<li>
+<p>The name of the container should be <strong>docker-flow-proxy</strong>.</p>
+</li>
+<li>
+<p>Internal port <strong>80</strong> should be exposed to the host as <strong>8081</strong>.</p>
+</li>
+<li>
+<p>Internal port <strong>8080</strong> should be exposed to the host as <strong>8082</strong>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For additional information, please consult <a href="https://docs.docker.com/engine/reference/commandline/run/">Docker Run</a> documentation.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_solution_test_the_code"><a class="anchor" href="#_solution_test_the_code"></a>Solution: Test the code</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash" data-lang="bash">cd /mnt/training-books-ms/exercises
+
+docker run --rm \
+    -v $PWD:/go/src/docker-flow \
+    -w /go/src/docker-flow \
+    golang \
+    sh -c "go get -t &amp;&amp; go test --cover -v"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The explanation of the arguments is as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The <code>--rm</code> argument automatically removes the container when it exits</p>
+</li>
+<li>
+<p>The <code>-v $PWD:/go/src/docker-flow</code> argument mounts the current directory (<code>$PWD</code>) as <code>/go/src/docker-flow</code>.</p>
+</li>
+<li>
+<p>The <code>go get -t &amp;&amp; go test --cover -v</code> argument is the command that is run inside the container</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_solution_build_the_binary"><a class="anchor" href="#_solution_build_the_binary"></a>Solution: Build the binary</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash" data-lang="bash">docker run --rm \
+    -v $PWD:/go/src/docker-flow \
+    -w /go/src/docker-flow \
+    golang \
+    sh -c "go get &amp;&amp; go build -v -o docker-flow-proxy"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The explanation of the arguments is as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The <code>--rm</code> argument automatically removes the container when it exits</p>
+</li>
+<li>
+<p>The <code>-v $PWD:/go/src/docker-flow</code> argument mounts the current directory (<code>$PWD</code>) as <code>/go/src/docker-flow</code>.</p>
+</li>
+<li>
+<p>The <code>go get &amp;&amp; go build -v -o docker-flow-proxy</code> argument is the command that is run inside the container</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_solution_create_dockerfile_that_defines_the_docker_image"><a class="anchor" href="#_solution_create_dockerfile_that_defines_the_docker_image"></a>Solution: Create Dockerfile that defines the Docker image</h3>
+<div class="paragraph">
+<p>The content of the <strong>Dockerfile</strong> should be as follows.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash" data-lang="bash">FROM haproxy:1.6-alpine
+MAINTAINER 	Viktor Farcic &lt;vfarcic@cloudbees.com&gt;
+
+RUN apk add --no-cache --virtual .build-deps curl unzip &amp;&amp; \
+    curl -SL \
+    https://releases.hashicorp.com/consul-template/0.13.0/consul-template_0.13.0_linux_amd64.zip \
+    -o /usr/local/bin/consul-template.zip &amp;&amp; \
+    unzip /usr/local/bin/consul-template.zip -d /usr/local/bin/ &amp;&amp; \
+    rm -f /usr/local/bin/consul-template.zip &amp;&amp; \
+    chmod +x /usr/local/bin/consul-template &amp;&amp; \
+    apk del .build-deps
+
+RUN mkdir /lib64 &amp;&amp; ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2
+RUN mkdir -p /cfg/tmpl
+COPY haproxy.cfg /cfg/haproxy.cfg
+COPY haproxy.tmpl /cfg/tmpl/haproxy.tmpl
+COPY docker-flow-proxy /usr/local/bin/docker-flow-proxy
+RUN chmod +x /usr/local/bin/docker-flow-proxy
+
+ENV CONSUL_ADDRESS ""
+EXPOSE 80
+EXPOSE 8080
+
+CMD ["docker-flow-proxy", "server"]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The explanation of the Dockerfile instructions is as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The <code>FROM</code> instruction sets the Base Image to <strong>haproxy:1.6-alpine</strong>.</p>
+</li>
+<li>
+<p>The <code>MAINTAINER</code> instruction allows you to set the Author field of the generated images.</p>
+</li>
+<li>
+<p>The <code>RUN</code> instruction executes any commands and commit the results.</p>
+</li>
+<li>
+<p>The <code>COPY</code> instruction copies new files or directories from the source (the first argument) and adds them to the filesystem of the container at the destination path (the second argument).</p>
+</li>
+<li>
+<p>The <code>ENV</code> instruction sets the environment variable (the first argument) to the value (the second argument).</p>
+</li>
+<li>
+<p>The <code>EXPOSE</code> instruction informs Docker that the container listens on the specified network ports at runtime.</p>
+</li>
+<li>
+<p>The <code>CMD</code> instruction provides defaults for an executing container.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Please use your favourite editor (e.g. <strong>vi</strong>) to create the <strong>Dockerfile</strong> or <code>echo</code> the contents that follow.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash" data-lang="bash">echo '
+FROM haproxy:1.6-alpine
+MAINTAINER 	Viktor Farcic &lt;vfarcic@cloudbees.com&gt;
+
+RUN apk add --no-cache --virtual .build-deps curl unzip &amp;&amp; \
+    curl -SL \
+    https://releases.hashicorp.com/consul-template/0.13.0/consul-template_0.13.0_linux_amd64.zip \
+    -o /usr/local/bin/consul-template.zip &amp;&amp; \
+    unzip /usr/local/bin/consul-template.zip -d /usr/local/bin/ &amp;&amp; \
+    rm -f /usr/local/bin/consul-template.zip &amp;&amp; \
+    chmod +x /usr/local/bin/consul-template &amp;&amp; \
+    apk del .build-deps
+
+RUN mkdir /lib64 &amp;&amp; ln -s /lib/libc.musl-x86_64.so.1 /lib64/ld-linux-x86-64.so.2
+RUN mkdir -p /cfg/tmpl
+COPY haproxy.cfg /cfg/haproxy.cfg
+COPY haproxy.tmpl /cfg/tmpl/haproxy.tmpl
+COPY docker-flow-proxy /usr/local/bin/docker-flow-proxy
+RUN chmod +x /usr/local/bin/docker-flow-proxy
+
+ENV CONSUL_ADDRESS ""
+EXPOSE 80
+EXPOSE 8080
+
+CMD ["docker-flow-proxy", "server"]
+' | sudo tee Dockerfile</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_solution_build_the_image_and_push_it_to_the_local_registry"><a class="anchor" href="#_solution_build_the_image_and_push_it_to_the_local_registry"></a>Solution: Build the image and push it to the local registry</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash" data-lang="bash">docker build -t localhost:5000/docker-flow-proxy .
+
+docker push localhost:5000/docker-flow-proxy</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <code>build</code> command builds Docker images from a Dockerfile and a context. The explanation of the <code>build</code> arguments is as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The <code>-t</code> argument specifies the name of the image. In this case, the name is prefixed with the IP and the port of the registry where the image will be pushed.</p>
+</li>
+<li>
+<p>The last argument is the path of the context. In this case, the <code>.</code> (dot) argument is translated to the current directory.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The <code>push</code> command is used to send images to the Docker Hub registry or to a self-hosted one. The explanation of the <code>tag</code> arguments is as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The first argument represents the image that will be pushed. It is prefixed with the IP and the port of the registry where the image will be pushed.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_solution_run_latest_version_of_the_container"><a class="anchor" href="#_solution_run_latest_version_of_the_container"></a>Solution: Run latest version of the container</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash" data-lang="bash">docker ps -a
+
+docker rm -f docker-flow-proxy
+
+docker run -d \
+    --name docker-flow-proxy \
+    -p 8081:80 -p 8082:8080 \
+    localhost:5000/docker-flow-proxy</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The explanation of the <code>ps</code> arguments is as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The <code>-a</code> argument shows all containers (default shows just running)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The explanation of the <code>rm</code> arguments is as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The <code>-f</code> argument forces the removal of a running container.</p>
+</li>
+<li>
+<p>The <code>docker-flow-proxy</code> argument is the name of the container that should be removed.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The explanation of the <code>run</code> arguments is as follows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The <code>-d</code> argument runs the container in background.</p>
+</li>
+<li>
+<p>The <code>--name</code> argument assigns a name to the container.</p>
+</li>
+<li>
+<p>The <code>-p</code> argument publishes a container&#8217;s port to the host. In this case, each value is split with colon (<strong>:</strong>). The left hand-side represents the port that should be published on the host while the right-hand side is the port defined internally inside the container.</p>
+</li>
+<li>
+<p>The last argument is the name of the image.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><a href="slides-02.html">Go back to slides</a></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2016-06-23 10:36:51 UTC
+</div>
+</div>
+
+<div id="ribbonHeader">CloudBees Jenkins Platform: Pipeline with Docker: Labs</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/highlight.min.js"></script>
+<script>hljs.initHighlighting()</script>
+</body>
+</html>

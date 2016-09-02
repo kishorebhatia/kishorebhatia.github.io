@@ -1,0 +1,185 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>CloudBees Jenkins Platform</title><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui" name="viewport"><link href="reveal.js/css/reveal.css" rel="stylesheet"><link rel="stylesheet" href="./build/build.css" id="theme"><link href="reveal.js/lib/css/zenburn.css" rel="stylesheet"><script>document.write( '<link rel="stylesheet" href="reveal.js/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );</script></head><body><div class="reveal"><div class="slides"><section><h1>CloudBees Jenkins Platform</h1><div class="paragraph"><p>Pipeline with Docker (Day 1)</p></div><p><small></small></p></section>
+<section><section id="prerequisites"><h2>Prerequisites</h2></section><section id="prerequisites_2"><h2>Prerequisites</h2><div class="ulist"><ul><li><p>If you do not already have an SSH client, please install <a href="https://chrome.google.com/webstore/detail/secure-shell/pnhechapfaindjhompbnflcldabbghjo/related?hl=en">Secure Shell Chrome Extension</a></p></li><li><p>Confirm that you can login to the assigned server (IP has been sent by email). Use <strong>cb</strong> as both the user and the password.</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p>If you do not have an SSH client installed, please add the Secure <a href="https://chrome.google.com/webstore/detail/secure-shell/pnhechapfaindjhompbnflcldabbghjo">Shell Chrome Extension</a></p></div>
+<div class="paragraph"><p>Check that the connection to the assigned server works correctly (please replace <strong>&lt;IP&gt;</strong> with the IP you were assigned).</p></div>
+<div class="paragraph"><p>From SSH client: <code>ssh cb@&lt;IP&gt;</code></p></div>
+<div class="paragraph"><p>From Secure Shell Chrome Extension: Type cb as user, <strong>&lt;IP&gt;</strong> as address, and <strong>22</strong> as port. Click the Connect button.</p></div>
+<div class="paragraph"><p>The password is <strong>cb</strong>.</p></div></aside></section></section>
+<section><section id="jenkins_overview"><h2>Jenkins overview</h2></section><section id="meet_jenkins"><h2>Meet Jenkins&#8230;&#8203;</h2><div class="ulist"><ul><li><p>#1 Continuous Integration and Delivery server</p></li><li><p>Created by Kohsuke Kawaguchi</p></li><li><p>An independent and active community (jenkins-ci.org)</p></li><li><p>10 years old</p></li><li><p>500+ releases to date</p></li><li><p>100,000 active installations</p></li><li><p>300,000 Jenkins servers</p></li><li><p>1,200+ plugins</p></li></ul></div>
+<div class="imageblock" style=""><div class="content"><img src="./images/butler-w-kk.png" alt="butler w kk" width="200"></div></div>
+<div class="paragraph footer"><p>Source: 2014 Java Tools and Technologies Landscape – Rebel Labs</p></div></section><section><div class="imageblock" style=""><div class="content"><img src="./images/java-leaderboard.png" alt="java leaderboard" width="800"></div></div></section><section id="jenkins_is_the_cd_orchestrator"><h2>Jenkins is the CD Orchestrator</h2><div class="imageblock" style=""><div class="content"><img src="./images/jenkins-cd-orchestrator.png" alt="jenkins cd orchestrator" width="600"></div></div></section></section>
+<section><section id="cloudbees_introduction"><h2>CloudBees Introduction</h2></section><section id="cloudbees_and_the_jenkins_community"><h2>CloudBees and the Jenkins Community</h2><div class="imageblock" style="float: right"><div class="content"><img src="./images/butler-w-kk.png" alt="butler w kk" width="200"></div></div>
+<div class="ulist"><ul><li><p>Kohsuke Kawaguchi</p><div class="ulist"><ul><li><p>Community leader and CloudBees’ CTO</p></li></ul></div></li><li><p>Code and Releases</p><div class="ulist"><ul><li><p>CloudBees partners with the community on development</p></li><li><p>CloudBees engineers contribute a majority of Jenkins OSS code</p></li><li><p>CloudBees partners with the community on releases</p></li><li><p>CloudBees contributes fixes back to the community</p></li></ul></div></li><li><p>Produce Jenkins Quarterly Newsletter</p></li><li><p>Conduct Jenkins User Conferences</p></li></ul></div></section><section id="cloudbees_products"><h2>CloudBees Products</h2><div class="imageblock" style=""><div class="content"><img src="./images/cloudbees-products.png" alt="cloudbees products" width="800"></div></div></section><section id="cloudbees_jenkins_platform_enterprise_edition"><h2>CloudBees Jenkins Platform: Enterprise Edition</h2><div class="paragraph"><p>For enterprise DevOps or infrastructure teams that want to:</p></div>
+<div class="ulist"><ul><li><p>Have the best in class Jenkins technical support</p></li><li><p>Operate Jenkins at scale to support a large number of developers, teams, or projects</p></li><li><p>Monitor usage and share resources across the Jenkins infrastructure</p></li><li><p>Optimize performance and efficiency of the CD platform</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p><a href="https://www.cloudbees.com/products/cloudbees-jenkins-platform/enterprise-edition" class="bare">https://www.cloudbees.com/products/cloudbees-jenkins-platform/enterprise-edition</a></p></div></aside></section><section id="cloudbees_subscription_model"><h2>CloudBees Subscription Model</h2><div class="ulist"><ul><li><p>CloudBees sells subscriptions that entitle you to receive support for:</p><div class="ulist"><ul><li><p>CloudBees Jenkins Platform</p></li><li><p>OSS Jenkins including 1,200+ Open Source Plugins</p></li></ul></div></li><li><p>Customers are charged an annual subscription fee per installation</p><div class="ulist"><ul><li><p>Multi-year subscriptions are available</p></li></ul></div></li><li><p>A typical service subscription includes:</p><div class="ulist"><ul><li><p>Software updates, bug fixes, and upgrades</p></li><li><p>Technical support</p></li><li><p>stable versions, stable APIs, and more</p></li></ul></div></li></ul></div></section><section id="cloudbees_resources"><h2>CloudBees Resources</h2><div class="ulist"><ul><li><p>Customer Engagement</p><div class="ulist"><ul><li><p>Support</p></li><li><p>Knowledge Base</p></li><li><p>Diagnostics</p></li></ul></div></li><li><p>Professional Services</p><div class="ulist"><ul><li><p>Architecture Assessment &amp; CD Guidance</p></li><li><p>Bootstrap Implementation Services</p></li><li><p>Migration Assistance</p></li></ul></div></li><li><p>Partners</p><div class="ulist"><ul><li><p>Training</p></li><li><p>Integration</p></li><li><p>Custom Development</p></li></ul></div></li></ul></div>
+<aside class="notes"><div class="paragraph"><p>Support &amp; Knowledge Base
+<a href="https://cloudbees.zendesk.com/hc/en-us" class="bare">https://cloudbees.zendesk.com/hc/en-us</a></p></div>
+<div class="paragraph"><p>Diagnostics
+<a href="https://cloudbees.zendesk.com/hc/en-us/articles/203805390" class="bare">https://cloudbees.zendesk.com/hc/en-us/articles/203805390</a></p></div>
+<div class="paragraph"><p>Professional Services
+<a href="https://www.cloudbees.com/products/professional-services" class="bare">https://www.cloudbees.com/products/professional-services</a></p></div></aside></section></section>
+<section><section id="pipeline_introduction_day_1"><h2>Pipeline Introduction (Day 1)</h2><aside class="notes"><div class="paragraph"><p>The aim of the first day of the workshop is to introduce Pipeline on theoretical level (without hands-on). It will provide a short history of other plugins that led to development of the Pipeline, provide reasons for its existence, and an introduction to its syntax.</p></div></aside></section><section id="in_this_unit_you_will_learn"><h2>In This Unit: You Will Learn</h2><div class="ulist"><ul><li><p>The need for pipeline</p></li><li><p>Pipeline use cases</p></li><li><p>Key pipeline DSL</p></li><li><p>Pipeline structure and syntax</p></li><li><p>Execution control</p></li></ul></div></section><section id="in_this_unit_you_will_be_able_to"><h2>In This Unit: You Will Be Able To</h2><div class="ulist"><ul><li><p>Recognize pipeline purpose and use cases</p></li></ul></div></section><section id="the_need_for_pipeline"><h2>The Need For Pipeline?</h2><div class="ulist"><ul><li><p>Reduction of a number of jobs</p></li><li><p>Easier maintenance</p></li><li><p>Deployment decentralization</p></li><li><p>Easier specification through code</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p><strong>Reduction of a number of jobs:</strong></p></div>
+<div class="paragraph"><p>When there are tens of jobs, their maintenance is quite easy. However, when that number increases to hundreds, managing them can become quite tedious and time demanding.</p></div>
+<div class="paragraph"><p>Let’s say that an average CD flow has five jobs (building, pre-deployment testing, deployment to a staging environment, post-deployment testing, and deployment to production). In reality, there are often more than five jobs but let’s keep it an optimistic estimate. If we multiple those jobs with, let’s say, twenty flows belonging to twenty different projects, the total number reaches one hundred.</p></div>
+<div class="paragraph"><p><strong>Easier maintenance:</strong></p></div>
+<div class="paragraph"><p>Now, imagine that we need to change all those jobs from, let’s say, Maven to Gradle. We can choose to start modifying them through the Jenkins UI or be brave and apply changes directly in Jenkins XML files that represent those jobs. Either way, this, seemingly simple change, would require quite some dedication. Fortunately, CloudBees Jenkins Enterprise Platform has templating functionality that simplifies massive modifications to multiple jobs.</p></div>
+<div class="paragraph"><p><strong>Deployment decentralisation:</strong></p></div>
+<div class="paragraph"><p>Even with it, maintaining many jobs chained into a flow is a complex endeavour. Moreover, due to its nature, everything is centralized in one location making it hard for teams to manage jobs belonging to their own projects.</p></div>
+<div class="paragraph"><p><strong>Easier specification through code:</strong></p></div>
+<div class="paragraph"><p>Some time ago, it become fashionable to use UIs for everything. We got a lot of tools that relied almost completely on drag&amp;drop operations. Since then, we learned that there there should be a healthy division between the usage of UIs and code. Deployment flow is one of those cases when something is easier to express, and cheaper to maintain, when specified as code. Traditional Jenkins jobs proved to introduce unnecessary problems when dealing with complex flows, conditionals, and so on.</p></div></aside></section><section id="what_is_cd_flow"><h2>What is CD Flow?</h2><div class="imageblock" style=""><div class="content"><img src="./images/CD-pipeline.png" alt="CD pipeline" width="500"></div></div>
+<div class="paragraph"><p>CD is about setting a "flow", from SCM commit to deployed application</p></div>
+<div class="paragraph"><p>Jenkins can chain jobs this way, but &#8230;&#8203;</p></div>
+<aside class="notes"><div class="paragraph"><p>The main requirement of continuous delivery (CD) is to set a "flow" that will run the whole process, starting from SCM commit, through building and testing, all the way until deployment. Jenkins has been capable of creating such a flow almost from the day it was born. However, being capable of doing something does not necessarily mean that something is done efficiently and easy to maintain. Jenkins had quite a lot of deficiencies preventing us from exploiting CD flow to its full potential. We can chain jobs but&#8230;&#8203;</p></div></aside></section><section id="jenkins_cd_flow"><h2>Jenkins CD Flow</h2><div class="paragraph"><p><strong>A Real-world CD Flow Is Way More Complex !</strong></p></div>
+<div class="ulist"><ul><li><p>Requires (Complex) Conditional Logic</p></li><li><p>Requires Resources Allocation And Cleanup</p></li><li><p>Involves Human Interaction For Manual Approval</p></li><li><p>Should Be Resumable At Some Point On Failure</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p>A real-world CD flow is often much more complex than what chained jobs can offer. Even when we can accomplish the objectives, the result is cumbersome, hard to maintain, and difficult to visualise. Some of the CD objectives we are unable to solve through chained jobs or are proved to be difficult to implement, are as follows.</p></div>
+<div class="paragraph"><p><strong>Requires (complex) conditional logic:</strong></p></div>
+<div class="paragraph"><p>CD flows often require some conditional logic to be applied. In many cases, it is not enough to simply chain jobs in a linear fashion. Often, we do not want to simply say run job A, once it&#8217;s finished, run job B, and follow it with job C. In real-world situations, things are more complicated than that. We want to run something (call it A), depending on the result invoke B1 or B2, than run in parallel C1, C2, and C3, and, finally, execute job D only when C jobs are finished successfully. If this would be a program or a script, we would have no problem accomplishing something like that since all modern programming languages allow us to employ conditional logic in a simple and efficient way.</p></div>
+<div class="paragraph"><p><strong>Requires resources allocation and cleanup:</strong></p></div>
+<div class="paragraph"><p>Resource allocation needs a careful thought and, often, is more complicated than a simple decision to run a job on a predefined slave. There are cases when slave should be decided dynamically, workspace should be defined during runtime, and cleanup depends on a result of some action.</p></div>
+<div class="paragraph"><p><strong>Involves human interaction for manual approval:</strong></p></div>
+<div class="paragraph"><p>While continuous deployment process means that the whole flow ends with deployment to production, many business are not ready for such a scope, or have use cases when it is not appropriate. Any other process with a smaller scope, be it continuous delivery or continuous integration, often requires some human interaction. A step in the flow might need someone&#8217;s confirmation, failed process might need a manual input about reasons for the failure, and so on. Requirement for human interaction should be an integral part of the flow and should allow us to pause, inspect, and resume the flow.</p></div>
+<div class="paragraph"><p><strong>Should be resumable at some point on failure:</strong></p></div>
+<div class="paragraph"><p>In many cases, it can take a long time for deployment flows to be fully executed. It is not uncommon for them to run for a couple of hours, or even days. In such cases, failure of the process, or the whole node the process is running on, should not mean that everything should be repeated. We should have a mechanism to continue the flow from defined checkpoints thus avoiding costly repetition, potential delays, and additional costs.</p></div></aside></section><section id="jenkins_cd_flow_2"><h2>Jenkins CD Flow</h2><div class="ulist"><ul><li><p>Many Related Plugins</p><div class="ulist"><ul><li><p>Conditional build steps</p></li><li><p>Parameterized trigger</p></li><li><p>Promotions</p></li><li><p>&#8230;&#8203;</p></li></ul></div></li><li><p>Major Issue: Flow Configuration Is Scattered In Various Jobs</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p>Jenkins already had plugins that could help us designing and building CD flows. We got "Conditional build steps", "Parameterised trigger", "Promotions", and so on. One of the major issues with those plugins is configuration. It tends to be scattered across multiple locations, hard to maintain, and with low visibility.</p></div></aside></section><section id="cd_flow_visualization"><h2>CD Flow Visualization</h2><div class="paragraph"><p>Build Pipeline Plugin To Render “Linear” Pipeline</p></div>
+<div class="imageblock" style=""><div class="content"><img src="./images/pipeline-old-1.png" alt="pipeline old 1" width="700"></div></div>
+<div class="paragraph"><p>Build-graph-view To Render Complex Ones</p></div>
+<div class="imageblock" style=""><div class="content"><img src="./images/pipeline-old-2.png" alt="pipeline old 2" width="700"></div></div>
+<aside class="notes"><div class="paragraph"><p>The "Build Pipeline" plugin helps us in visualisation of the process but failed to address any other need of the CD flow.</p></div></aside></section><section id="reality_check"><h2>Reality Check</h2><div class="ulist"><ul><li><p>How do you use Jenkins now?</p></li><li><p>Given the functionality, where do you see your team using these tools and plugins in your jobs?</p></li><li><p>Do you practice CI or CD?</p></li><li><p>Describe your CI/CD flow needs and processes.</p></li></ul></div></section><section id="build_flow_plugin"><h2>Build Flow Plugin</h2><div class="ulist"><ul><li><p>OSS</p></li><li><p>Proof of concept</p></li><li><p>Define CD flow as code</p></li><li><p>Largely adopted</p></li><li><p>Technical limitations</p></li></ul></div>
+<div class="imageblock" style=""><div class="content"><img src="./images/build-flow.png" alt="build flow" width="300"></div></div>
+<aside class="notes"><div class="paragraph"><p><strong>OSS:</strong></p></div>
+<div class="paragraph"><p>During mid. 2012, the first beta version of the Build Flow Plugin has been released as open source.</p></div>
+<div class="paragraph"><p><strong>Proof of concept:</strong></p></div>
+<div class="paragraph"><p>More than a final solution to CD flow problems, it was considered a proof of concept.</p></div>
+<div class="paragraph"><p><strong>Define CD flow as code:</strong></p></div>
+<div class="paragraph"><p>The main idea behind the plugin was to define the CD flow through code. To simplify coding, Groovy based DSL was created.</p></div>
+<div class="paragraph"><p><strong>Largely adopted:</strong></p></div>
+<div class="paragraph"><p>The response from the community was very positive and the plugin received a wide adoption that demonstrated that the direction of the plugin was correct and should be explored more.</p></div>
+<div class="paragraph"><p><strong>Technical limitations:</strong></p></div>
+<div class="paragraph"><p>The plugin hit some technical limitations that prevented the community from developing it further. We had to start fresh using the knowledge and experience obtained through the Build Flow plugin.</p></div></aside></section><section id="cloudbees_pipeline_plugin"><h2>CloudBees Pipeline Plugin</h2><div class="ulist"><ul><li><p>Inspired By Build-flow</p></li><li><p>Groovy DSL To Orchestrate Build Steps</p></li><li><p>Extensible DSL Syntax</p></li><li><p>Supports Checkpoint</p></li><li><p>Advanced Visualization</p></li><li><p>SCM Friendly</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p><strong>Inspired by build-flow:</strong></p></div>
+<div class="paragraph"><p>The success of the Build Flow plugin lead us into a decision to start fresh. The Workflow plugin was born (and later renamed to Pipeline plugin). It continues maintaining the core idea of the Build Flow plugin and the experience obtained while developing it allowed us to avoid some of the mistakes and greatly improve the design.</p></div>
+<div class="paragraph"><p><strong>Groovy DSL to orchestrate build steps:</strong></p></div>
+<div class="paragraph"><p>The Pipeline plugin is based on Groovy DSL that can be used to define build steps and accomplish in a single script flow that would normally require many "standard" Jenkins chained together. The DSL Groovy based syntax allows us to combine the best of both worlds. Through DSL we have simplicity in defining commonly used tasks like access to a SCM repository, definition of nodes tasks should run on, parallel execution, and so on. On the other hand, since the plugin uses Groovy, almost any operation can be defined. We can, finally, use conditionals, loops, variables, and so on. Since Groovy is an integral part of Jenkins, we can also use it to access almost any existing Jenkins plugin or even to operate on Jenkins core features. If you are not familiar with Groovy (and do not want to get to know it), in most cases you will be able to accomplish everything through the DSL. You can consider it a new language with a very simple syntax. Domain specific languages have been around for a long time and proved to be more efficient at defining very specific sets of tasks.</p></div>
+<div class="paragraph"><p><strong>Extensible DSL syntax:</strong></p></div>
+<div class="paragraph"><p>The plugin is designed in a way that it can be easily extended. Even though it&#8217;s been in use only for a short time, we&#8217;ve seen many contributions. While we can use Groovy to access any plugin, long term plan is to extend the DSL so that all commonly used plugins are defined through it.</p></div>
+<div class="paragraph"><p><strong>Supports checkpoint:</strong></p></div>
+<div class="paragraph"><p>Besides ever growing number of DSL modules, the Pipeline supports checkpoints allowing us to restart the flow in defined points. Bear in mind that they are one of the enterprise features not available in the open source version.</p></div>
+<div class="paragraph"><p><strong>Advanced visualisation:</strong></p></div>
+<div class="paragraph"><p>The idea, from the start, was to combine the flexibility and maintainability accomplished with DSL and Groovy with advanced visualisation. We define the flow through code and monitor the result through visualisation. Just as checkpoints, it is one of the features available only in the enterprise version.</p></div>
+<div class="paragraph"><p><strong>SCM friendly:</strong></p></div>
+<div class="paragraph"><p>Since the whole delivery flow is defined as code in plain text format, storing the scripts in SCM is not only available, but highly recommended. By storing the Pipeline scripts in, let&#8217;s say, Git, we can apply the same process with them as with any other code. We can commit it to the repository, use pull requests, code reviews, and so on. Moreover, the Multibranch Pipeline allows us to store the script in a Jenkinsfile and defined different flows inside each branch.</p></div>
+<div class="paragraph"><p>This was only a sneak peak into the Pipeline plugin capabilities. We&#8217;ll discuss its syntax, capabilities, and features in more detail later on as we progress with the training. At this point you can already see that it comes with many advantages over more "traditional" ways of defining jobs. Indeed, the Pipeline plugin opened some doors that were previously closed or very hard to pass through. It brought Jenkins to a completely new level proving, once again, that it is the leader among CI/CD tools.</p></div></aside></section><section id="mid_break"><h2>Mid-Break</h2><div class="paragraph"><p>(10) minutes for learner re-integration.</p></div>
+<div class="imageblock" style=""><div class="content"><img src="./images/break.png" alt="break" width="300"></div></div></section><section id="creating_a_simple_pipeline"><h2>Creating A Simple Pipeline</h2><div class="imageblock" style=""><div class="content"><img src="./images/cje-create-pipeline.png" alt="cje create pipeline" width="700"></div></div>
+<div class="paragraph"><p>More info: <a href="https://jenkins.io/doc/pipeline/">Getting Started With Pipeline</a></p></div>
+<aside class="notes"><div class="paragraph"><p>Creating a new Pipeline job is easy and follows the same process like any other Jenkins job. Shall we get our hands dirty? Let&#8217;s create a new Pipeline job.</p></div>
+<div class="paragraph"><p>Please open the Jenkins instance running on the 10.100.192.200:8080 address. Click on the New Item click located in the left-hand menu, type my-first-pipeline, select Pipeline from the the of available job types, and, finally, click the OK button. You will be redirected to the my-first-pipeline configuration screen. You will notice that there are no options to add build steps or post-build actions. Apart from some common options like build parameters and the ability to run the job periodically, the whole job consists of a single Pipeline definition. A simple workflow script could be as follows.</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="groovy language-groovy">node("cd") {
+    echo "This is a message from Jenkins Pipeline plugin"
+}</code></pre></div></div>
+<div class="paragraph"><p>Once you are done writing the script, please click the Save button and build it by pressing the Build Now link located in the left-hand menu. Since our job is only outputting a message, it will take only a second before it finishes executing. Click on the build number #1, followed with the Console Output. You&#8217;ll notice two things. The build was run on the node-cd slave. We accomplished that by specifying one of its labels cd inside the script and wrapped everything else inside curly braces. Once Jenkins got connected to the slave, it output "This is a message from Jenkins Workflow plugin" to the screen.</p></div>
+<div class="paragraph"><p>With time, you will learn Workflow DSL syntax. Until that happens, it would be nice to have a way to explore modules we can use without consulting the documentation.</p></div></aside></section><section id="snippet_generator"><h2>Snippet Generator</h2><div class="imageblock" style=""><div class="content"><img src="./images/cje-pipeline-snippet-generator.png" alt="cje pipeline snippet generator" width="600"></div></div>
+<aside class="notes"><div class="paragraph"><p>At this moment you might be worried that you&#8217;ll have to learn yet another language. While that is true on the long run, you will be able to start creating Pipeline jobs right away by leveraging the Snippet Generator. It is an easy and convenient way to explore available Pipeline modules and generate snippets that can be copied into the Pipeline script.</p></div>
+<div class="paragraph"><p>Please open the my-first-workflow job configuration screen. Scroll down to the Pipeline script and click the Snippet Generator checkbox. You&#8217;ll see the Sample Step drop-down with the list of all available steps that can be used. Choose one. Fields with arguments that can be used with the selected step will appear below. Fill them in and click the Generate Groovy button. A snippet will appear below the button. The only thing left is to copy it and paste it into appropriate part of the Pipeline Script.</p></div>
+<div class="paragraph"><p>Later on, we&#8217;ll go into more detailed discussion about some of the most commonly used Pipeline steps.</p></div></aside></section><section id="pipeline_introduction_review"><h2>Pipeline Introduction: Review</h2></section><section id="pipeline_introduction_review_2"><h2>Pipeline Introduction: Review</h2><div class="ulist"><ul><li><p>CD Flow</p></li><li><p>Older Solutions</p></li><li><p>Build Flow Plugin</p></li><li><p>Cloudbees Pipeline Plugin</p></li><li><p>Create Pipeline Jobs</p></li><li><p>Use The Snippet Generator</p></li></ul></div>
+<aside class="notes"><div class="paragraph"><p><strong>CD Flow:</strong></p></div>
+<div class="paragraph"><p>We briefly explored the goals of a CD flow as a definition of a flow that defined the whole process, starting from SCM commit, through building and testing, all the way until deployment.</p></div>
+<div class="paragraph"><p><strong>Older solutions:</strong></p></div>
+<div class="paragraph"><p>We continued discussing some of the older Jenkins solutions to this challenge and concluded that a real-world CD flow is way more complex than what those plugins can offer. The flow often requires complex and conditional logic, allocation and cleanup of resources, can involve human interaction, should be resumable in case of a failure, and so on. We also discussed the need to a balanced combination of code and visualisation of the pipeline.</p></div>
+<div class="paragraph"><p><strong>Build Flow plugin:</strong></p></div>
+<div class="paragraph"><p>We could not begin the discussion of the CloudBees Pipeline plugin without mentioning the Build Flow plugin. It is, in a way, the predecessor of the CloudBees Pipeline plugin and uses similar concepts (Groovy, DSL, and so on). Even though it got wide adoption, it was considered only a proof of concept.</p></div>
+<div class="paragraph"><p><strong>CloudBees Pipeline Plugin:</strong></p></div>
+<div class="paragraph"><p>CloudBees Pipeline plugin is an evolution of the CD concepts inside Jenkins and a response to ever changing needs of the industry. We went briefly through its major advantages and reasons behind its existence.</p></div>
+<div class="paragraph"><p><strong>Create Pipeline jobs:</strong></p></div>
+<div class="paragraph"><p>We saw, briefly, how to create a new Pipeline job by implementing a simple echo running inside a slave with the cd label. The intention behind the example was only to give you a taste of what we&#8217;ll explore in more details through the rest of the training.</p></div>
+<div class="paragraph"><p><strong>Use the Snippet Generator:</strong></p></div>
+<div class="paragraph"><p>We used the Snippet Generator to help us create snippets of the Pipeline steps. It is a convenient way to explore the Pipeline DSL without having to memorise the syntax.</p></div></aside></section><section id="pipeline_introduction_exercise"><h2>Pipeline Introduction: Exercise</h2><div class="paragraph"><p><a href="labs.html#_pipeline_introduction_exercise">Pipeline Introduction: Exercise</a></p></div></section></section></div></div><script src="reveal.js/lib/js/head.min.js"></script><script src="reveal.js/js/reveal.js"></script><script>// See https://github.com/hakimel/reveal.js#configuration for a full list of configuration options
+Reveal.initialize({
+  // Display controls in the bottom right corner
+  controls: true,
+  // Display a presentation progress bar
+  progress: true,
+  // Display the page number of the current slide
+  slideNumber: true,
+  // Push each slide change to the browser history
+  history: true,
+  // Enable keyboard shortcuts for navigation
+  keyboard: true,
+  // Enable the slide overview mode
+  overview: true,
+  // Vertical centering of slides
+  center: true,
+  // Enables touch navigation on devices with touch input
+  touch: true,
+  // Loop the presentation
+  loop: false,
+  // Change the presentation direction to be RTL
+  rtl: false,
+  // Turns fragments on and off globally
+  fragments: true,
+  // Flags if the presentation is running in an embedded mode,
+  // i.e. contained within a limited portion of the screen
+  embedded: false,
+  // Number of milliseconds between automatically proceeding to the
+  // next slide, disabled when set to 0, this value can be overwritten
+  // by using a data-autoslide attribute on your slides
+  autoSlide: 0,
+  // Stop auto-sliding after user input
+  autoSlideStoppable: true,
+  // Enable slide navigation via mouse wheel
+  mouseWheel: false,
+  // Hides the address bar on mobile devices
+  hideAddressBar: true,
+  // Opens links in an iframe preview overlay
+  previewLinks: false,
+  // Theme (e.g., beige, black, league, night, serif, simple, sky, solarized, white)
+  // NOTE setting the theme in the config no longer works in reveal.js 3.x
+  //theme: Reveal.getQueryHash().theme || 'black',
+  // Transition style (e.g., none, fade, slide, convex, concave, zoom)
+  transition: Reveal.getQueryHash().transition || 'slide',
+  // Transition speed (e.g., default, fast, slow)
+  transitionSpeed: 'default',
+  // Transition style for full page slide backgrounds (e.g., none, fade, slide, convex, concave, zoom)
+  backgroundTransition: 'fade',
+  // Number of slides away from the current that are visible
+  viewDistance: 3,
+  // Parallax background image (e.g., "'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg'")
+  parallaxBackgroundImage: '',
+  // Parallax background size in CSS syntax (e.g., "2100px 900px")
+  parallaxBackgroundSize: '',
+
+  // The "normal" size of the presentation, aspect ratio will be preserved
+  // when the presentation is scaled to fit different resolutions. Can be
+  // specified using percentage units.
+  width: 1280,
+  height: 800,
+
+  // Factor of the display size that should remain empty around the content
+  margin: 0.1,
+
+  // Bounds for smallest/largest possible scale to apply to content
+  minScale: 0.2,
+  maxScale: 1.5,
+
+  // Optional libraries used to extend on reveal.js
+  dependencies: [
+      { src: 'reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+      { src: 'reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+      { src: 'reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      { src: 'reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+  ]
+});</script><div id="cloudbees-ruban">
+  <img id="cloudbees-logo" src="images/cloudbees_university.svg" alt="CloudBees University Logo"/>
+
+  <span id="presentation-title">CloudBees Jenkins Platform</span>
+
+  <a id="linkToToc" href="#toc"><img src="images/toc-icon.png" alt="ToC Icon" /></a>
+
+  <span id="cloudbees-copyright " class="copyright">© 2016 CloudBees, Inc.  All Rights Reserved</span>
+</div>
+
+<div id="watermark">
+  <p id="watermark-text">© 2016 CloudBees, Inc.  All Rights Reserved</p>
+</div></body></html>
