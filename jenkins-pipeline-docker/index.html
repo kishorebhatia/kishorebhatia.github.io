@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Fundamentals of Jenkins Pipeline and Docker</title>
+
+    <meta name="author" content="Kishore Bhatia">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="../lib/js/html5shiv.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+<div class="reveal">
+    <!-- Any section element inside of this container is displayed as a slide -->
+    <div class="slides">
+        <section id="cover">
+            <h2>Fundamentals of Jenkins Pipelines and Docker</h2>
+            <p>
+                <small>
+                    Created by <a href="https://www.linkedin.com/in/kishorebhatia">Kishore Bhatia</a>
+                   / <a href="http://twitter.com/bhatiakishore">@bhatiakishore</a>
+                </small>
+            </p>
+        </section>
+        <section id="aboutMe">
+            <h2>Kishore Bhatia</h2>
+            <ul>
+                <img src="img/kb.jpg" style="float: right; width: 25%; height: 25%;"/>
+                <li>Software Architect at <a href="http://www.cloudbees.com">CloudBees</a></li>
+                </ul>
+        </section>
+
+            <section id="agenda">
+                <h2>Agenda</h2>
+                <ul>
+                    <li>PreRequisites - 15mins</li>
+                    <li>Jenkins Overview</li>
+                    <li>CloudBees</li>
+                    <li>Pipeline Introduction</li>
+                    <li>Lunch Break</li>
+                    <li>Docker Introduction</li>
+                    <li>Lab1</li>
+                    <li>Lab2</li>
+                    <li>Jenkins2.x and Pipelines</li>
+                    <li>What next?</li>
+                </ul>
+            </section>
+        </section>
+        <section>
+          <section id="prereqs">
+              <h4>PreRequisites</h4>
+              <ul>
+                  <li>General Announcement</li>
+                  <li>Lab Environment Setup</li>
+              </ul>
+          </section>
+          <section id="groundrules">
+              <h4>General announcement</h4>
+              <ul>
+                  <li>Follow along with me, ask questions during quick breaks</li>
+                  <li>Content and lab exercises available offline so you can practice at your own pace</li>
+                  <li>Quick breaks 10mins</li>
+                  <li>Lunch Break at 12noon</li>
+                  <li>Not much we can do about local config, failures and issues with wifi</li>
+                  <li>Cell Phones Yo!</li>
+                  <li>Have Fun Learning!</li>
+              </ul>
+          </section>
+            <section id="env">
+                <h4>Lab Environment</h4>
+                <ul>
+                  <li>CloudBees Jenkins Enterprise Master</li>
+                  <li>Docker - Docker Machine, Docker Registry</li>
+                  <li>Git client</li>
+                  <li>SSH client</li>
+                </ul>
+                <img src="img/cloudbees.png" style="background-color: black; width: 50%; height: 50%; float: right;">
+                <ul>
+                    <li><a href="https://www.cloudbees.com/get-started">https://www.cloudbees.com/get-started</a></li>
+                    <li><a href="https://www.docker.com/">https://www.docker.com/</a></li>
+                </ul>
+            </section>
+        </section>
+        <section id="moreInfo">
+            <section>
+                <h2>Additional Information</h2>
+                <h4>
+                    <a href="http://technologyconversations.com/category/continuous-integration-delivery-and-deployment/">
+                        Training Content - Fundamentals of Jenkins Pipeline and Docker
+                    </a>
+                </h4>
+                <h4>
+                    <a href="http://www.cloudbees.com/">
+                        CloudBees.com
+                    </a>
+                </h4>
+            </section>
+        </section>
+        <section>
+            <section id="the-end">
+                <img src="img/the_end.jpg" style="width: 40%; height: 40%; float: right;">
+                <h1>Kishore Bhatia</h1>
+                <h3><a href="https://twitter.com/bhatiakishore">@bhatiakishore</a></h3>
+            </section>
+        </section>
+    </div>
+</div>
+
+<script src="lib/js/head.min.js"></script>
+<script src="js/reveal.js"></script>
+
+
+<script>
+
+    // Full list of configuration options available here:
+    // https://github.com/hakimel/reveal.js#configuration
+    Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/none
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+            { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+            { src: 'plugin/markdown/showdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+            { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+            { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+            { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+            { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+    });
+
+</script>
+
+</body>
+</html>
